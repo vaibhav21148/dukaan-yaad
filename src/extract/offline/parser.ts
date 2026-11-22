@@ -55,6 +55,7 @@ const KEYWORD_WORDS = new Set(
 /** Split into clauses on punctuation (but not inside numbers like 2.5 or 1,500). */
 export function splitClauses(text: string): string[] {
   return text
+    .replace(/\.{2,}|…/g, ' ') // "500... nahi 400": a pause, not a new clause
     .split(/,(?!\d{3}(?!\d))|;|\||\n|।|\?|!|\.(?!\d)/)
     .map((s) => s.trim())
     .filter(Boolean);
@@ -213,7 +214,7 @@ function itemsFromReorder(piece: string, glued: boolean): { items: string[]; sup
     before = t.slice(hit.index + 1).join(' ');
   }
   const items = before
-    .split(new RegExp(`\\s+(?:${CONJUNCTIONS.map(esc).join('|')})\\s+|\\s*[/&+]\\s*`, 'iu'))
+    .split(new RegExp(`\\s+(?:${CONJUNCTIONS.map(esc).join('|')})\\s+|\\s*[/&+,]\\s*`, 'iu'))
     .map((x) => x.replace(/\b(ka|ki|ke)\s+stock\b/gi, ' ').replace(/\b(bhi|wala|wali|wale)\b/gi, ' '))
     .map(cleanItem)
     .filter((x): x is string => !!x);
@@ -262,9 +263,49 @@ function hasContent(piece: string, glued: boolean): boolean {
 export function parseOffline(text: string, ctx: ParseContext): ExtractedEntry[] {
   const out: ExtractedEntry[] = [];
   const lang = ctx.lang;
-  for (const clause of splitClauses(text)) {
-    // split on "aur" etc., then glue item lists back together
+  const clauses = splitClauses(text);
+  let pendingCorrection = false; // "no wait," on its own: the next bare number corrects the last entry
+  let prevClauseEntries = 0;
+  let startOfPrev = 0;
+  for (let ci = 0; ci < clauses.length; ci++) {
+    prevClauseEntries = out.length - startOfPrev;
+    const clause = clauses[ci];
     const glued = lang === 'mr' || lang === 'gu' || /[\u0A80-\u0AFF]/.test(clause);
+    const normClause = normalizeNumbers(clause);
+    const last = out[out.length - 1];
+    // "no wait" / "nahi" alone
+    if (RE.correctionStart.test(clause) && !normClause.replace(RE.correctionStart, '').replace(/\b(wait|ruko|matlab|sorry|i mean)\b/gi, '').trim()) {
+      pendingCorrection = true;
+      continue;
+    }
+    // ", 250" / ", 120 rupaye" / "250 tha": a bare amount belongs to the entry just before it
+    const bare = /^(?:₹|rs\.?)?\s*(\d+(?:\.\d+)?)\s*(?:rupaye|rupaya|rupees|rs|₹|रुपये|रुपए|રૂપિયા|tha|the|thi|था|थे|होते|હતા)?\s*$/i.exec(normClause.trim());
+    if (bare && last && last.type !== 'reorder' && (pendingCorrection || last.amount == null)) {
+      last.amount = Number(bare[1]);
+      if (last.unclear && /kitna|kitne|how much|किती|કેટલ|rakam|amount|रक्कम|રકમ/i.test(last.unclear)) last.unclear = null;
+      last.quote = `${last.quote}, ${clause}`;
+      pendingCorrection = false;
+      continue;
+    }
+    pendingCorrection = false;
+    const clauseIntent = detectIntent(clause, glued);
+    // "Parle-G, Maggi aur Tata namak khatam": a bare item before a stock-out clause joins it
+    if (!clauseIntent && !hasContent(clause, glued) && ci + 1 < clauses.length && detectIntent(clauses[ci + 1], glued) === 'reorder') {
+      clauses[ci + 1] = `${clause}, ${clauses[ci + 1]}`;
+      continue;
+    }
+    // "Meena's order for tomorrow, 5 kg atta": the item said after the order
+    if (!clauseIntent && last && last.type === 'pending_order' && prevClauseEntries > 0 && !findMarker(clause, glued)) {
+      const it = cleanItem(normClause);
+      if (it) {
+        last.item = last.item && last.item.length > 3 ? `${last.item}, ${it}` : it;
+        last.quote = `${last.quote}, ${clause}`;
+        continue;
+      }
+    }
+    const before = out.length;
+    startOfPrev = before;
+    // split on "aur" etc., then glue item lists back together
     const parts = clause.split(RE.conjCapture);
     const pieces: { text: string; sep: string; intent: Intent | null }[] = [];
     for (let i = 0; i < parts.length; i += 2) {
@@ -278,7 +319,8 @@ export function parseOffline(text: string, ctx: ParseContext): ExtractedEntry[] 
       const p = pieces[i];
       const next = pieces[i + 1];
       const noNum = !/\d/.test(normalizeNumbers(p.text));
-      if (!p.intent && next && (!hasContent(p.text, glued) || (noNum && next.intent === 'reorder'))) {
+      const nextBare = !!next && !!next.intent && !/\d/.test(normalizeNumbers(next.text)) && !findMarker(next.text, glued);
+      if (!p.intent && next && (!hasContent(p.text, glued) || (noNum && next.intent === 'reorder') || (nextBare && next.intent !== 'reorder'))) {
         const text = `${p.text}${p.sep}${next.text}`;
         pieces[i + 1] = { text, sep: next.sep, intent: next.intent ?? detectIntent(text, glued) };
         continue;
@@ -329,6 +371,8 @@ export function parseOffline(text: string, ctx: ParseContext): ExtractedEntry[] 
       const hit = findMarker(piece, glued);
       let party = partyBefore(piece, hit);
       if (!party && p.intent && p.intent !== 'pending_order') party = leadingName(norm);
+      // "Bharat distributor ko 2000 de diye aur 3000 abhi baaki hai": same person, name said once
+      if (!party && out.length > before && p.intent !== 'pending_order') party = out[out.length - 1].party;
       const amount = pickAmount(norm);
       const need = (q: Parameters<typeof doubt>[1]) => doubt(lang, q);
 

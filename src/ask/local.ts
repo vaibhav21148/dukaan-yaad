@@ -1,7 +1,7 @@
 // Offline "Poochho": answers ONLY from the saved ledger snapshot. No guessing.
 import { containsWord } from '../../shared/dates';
 import { cleanName, nameInText } from '../../shared/names';
-import { toRoman } from '../../shared/translit';
+import { phoneticKey, toRoman } from '../../shared/translit';
 import { addDaysIso } from '../../shared/dates';
 import type { Lang, LedgerSnapshot } from '../../shared/types';
 
@@ -149,8 +149,14 @@ export function answerLocal(question: string, s: LedgerSnapshot, lang: Lang): st
   // If the question says a saved name exactly ("Sharma ji"), answer for that one only;
   // a bare "Sharma" matches every Sharma, and we list them all rather than guess.
   const qClean = ` ${cleanName(toRoman(question))} `;
+  // word-by-word sound match, so "शर्मा जी" equals "Sharma ji" (but not "Sharma uncle")
+  const qKeys = cleanName(question).split(' ').map(phoneticKey);
+  const saysExactly = (n: string) => {
+    const k = cleanName(n).split(' ').map(phoneticKey);
+    return k.length > 1 && qKeys.some((_, i) => k.every((w, j) => qKeys[i + j] === w));
+  };
   const all = [...names.values()];
-  const exact = all.filter((n) => qClean.includes(` ${cleanName(toRoman(n))} `));
+  const exact = all.filter((n) => qClean.includes(` ${cleanName(toRoman(n))} `) || saysExactly(n));
   const hits = exact.length ? exact : all.filter((n) => nameInText(n, question));
   if (hits.length) {
     const lines: string[] = [];

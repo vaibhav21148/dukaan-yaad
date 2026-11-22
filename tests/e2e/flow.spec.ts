@@ -8,7 +8,7 @@ test('example note to saved entries to Kal ka kaam to Poochho', async ({ page })
   await expect(page.getByRole('button', { name: 'Bolna shuru karo' })).toBeVisible();
   await expect(page.getByText('Offline mode')).toBeVisible(); // no keys in preview -> offline chip, no error screen
 
-  await page.getByRole('button', { name: 'Example se try karo' }).click();
+  await page.getByRole('button', { name: /Example dekho/ }).click();
   await expect(page.getByRole('heading', { name: 'Check karo, phir save' })).toBeVisible();
   const cards = page.locator('.card.entry');
   await expect(cards).toHaveCount(6);
@@ -16,14 +16,14 @@ test('example note to saved entries to Kal ka kaam to Poochho', async ({ page })
   await expect(cards.nth(5)).toContainText('₹250');
   // two Sharmas in the ledger -> must choose before saving
   await expect(page.getByText(/Kaun se Sharma\?/)).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Sab sahi hai, save karo' })).toBeDisabled();
+  await expect(page.locator('.savebar .save')).toBeDisabled();
   await page.getByRole('button', { name: 'Sharma ji', exact: true }).click();
   await expect(page.getByText(/Kaun se Sharma\?/)).toHaveCount(0);
   // "Gupta ji" (customer order) must not be silently linked to supplier "Gupta Traders"
   await expect(page.getByText(/Kaun se Gupta ji\? Gupta Traders ya Naya naam\?/)).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Sab sahi hai, save karo' })).toBeDisabled();
+  await expect(page.locator('.savebar .save')).toBeDisabled();
   await page.getByRole('button', { name: 'Naya naam' }).click();
-  await page.getByRole('button', { name: 'Sab sahi hai, save karo' }).click();
+  await page.locator('.savebar .save').click();
   await expect(page.getByText('Save ho gaya.')).toBeVisible();
 
   // Kal ka kaam: Ramesh was overdue in the sample ledger; Gupta Traders due tomorrow; reorder list
@@ -52,7 +52,7 @@ test('example note to saved entries to Kal ka kaam to Poochho', async ({ page })
 test('typing fallback works and nothing is saved without confirmation', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'English' }).click();
-  await page.getByRole('button', { name: 'Type instead' }).click();
+  await page.getByRole('button', { name: /type instead/i }).click();
   await page.getByRole('textbox').fill('Owe Ramesh 5000 by Friday, sugar finished');
   await page.getByRole('button', { name: 'Understand and show' }).click();
   await expect(page.locator('.card.entry')).toHaveCount(2);
