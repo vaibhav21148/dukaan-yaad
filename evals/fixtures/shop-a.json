@@ -1,0 +1,14 @@
+{
+  "today": "2026-11-22",
+  "suppliers_owed": [
+    { "name": "Ramesh distributor", "amount": 8200, "due": "2026-11-20" },
+    { "name": "Gupta Traders", "amount": 1800, "due": "2026-11-23" }
+  ],
+  "customers_owe": [
+    { "name": "Sharma ji", "amount": 650 },
+    { "name": "Sharma uncle", "amount": 120 },
+    { "name": "Verma ji", "amount": 350 }
+  ],
+  "to_reorder": [{ "item": "Tata namak", "supplier": "Gupta Traders" }, { "item": "Maggi", "supplier": null }],
+  "pending_orders": [{ "party": "Meena didi", "item": "5 kilo atta", "due": "2026-11-23" }]
+}

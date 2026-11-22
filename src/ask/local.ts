@@ -128,7 +128,7 @@ const TEXT: Record<Lang, T> = {
 const Q = {
   late: ['late', 'der', 'overdue', 'pichhla', 'उशीर', 'देर', 'મોડું', 'baaki reh gaya'],
   payBy: ['kal kisko', 'kisko dena', 'kise dena', 'who to pay', 'whom to pay', 'pay tomorrow', 'kal tak', 'किसको देना', 'कोणाला द्यायचे', 'કોને આપવાના', 'payment kab', 'due'],
-  reorder: ['khatam', 'mangwana', 'mangana', 'maal', 'stock', 'reorder', 'out of stock', 'खत्म', 'ख़त्म', 'मंगवाना', 'संपले', 'मागवायचे', 'ખતમ', 'મંગાવવાનું', 'kya lana'],
+  reorder: ['run out', 'ran out', 'finished', 'out of', 'low', 'khatam', 'mangwana', 'mangana', 'maal', 'stock', 'reorder', 'out of stock', 'खत्म', 'ख़त्म', 'मंगवाना', 'संपले', 'मागवायचे', 'ખતમ', 'મંગાવવાનું', 'kya lana'],
   orders: ['order', 'orders', 'ऑर्डर', 'ઓર્ડર', 'deliver', 'delivery'],
   totalDena: ['kitna dena', 'total dena', 'kul dena', 'suppliers ko', 'how much do i owe', 'i owe', 'कितना देना', 'किती द्यायचे', 'કેટલા આપવાના', 'supplier'],
   totalMilna: ['kitna milna', 'kul udhaar', 'total udhaar', 'sab ka udhaar', 'customers se', 'owe me', 'how much credit', 'कितना मिलना', 'उधार कितना', 'किती येणे', 'એકંદર ઉધાર', 'કેટલા લેવાના', 'udhaar', 'customer'],

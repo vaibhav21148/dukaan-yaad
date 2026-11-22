@@ -163,6 +163,15 @@ describe('STT guards and VAD', () => {
     expect(trimmed).toBeGreaterThan(16000);
     expect(trimmed).toBeLessThan(2 * 16000);
   });
+  it('detects speech that starts immediately (no leading silence)', () => {
+    // syllable-like bursts with short gaps, starting at sample 0
+    const a = Float32Array.from({ length: 3 * 16000 }, (_, i) => (Math.floor(i / 3200) % 2 === 0 ? 0.3 * Math.sin(i / 5) : 0.001));
+    expect(hasSpeech(a)).toBe(true);
+  });
+  it('steady background noise is not speech', () => {
+    const a = Float32Array.from({ length: 3 * 16000 }, (_, i) => 0.05 * Math.sin(i * 1.3) * (0.9 + 0.1 * Math.sin(i / 700)));
+    expect(hasSpeech(a)).toBe(false);
+  });
   it('splits long audio into chunks under 30 s', () => {
     const a = tone(70, 0.2);
     const chunks = splitChunks(a, 28);

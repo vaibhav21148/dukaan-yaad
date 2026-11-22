@@ -56,7 +56,7 @@ self.onmessage = async (ev: MessageEvent) => {
     } else if (type === 'transcribe') {
       if (!asr) throw new Error('model not loaded');
       const out = await asr(ev.data.audio, {
-        language: ev.data.language ?? undefined, // null -> auto-detect for mixed speakers
+        language: ev.data.language ?? 'hindi', // never null: Transformers.js would silently assume English
         task: 'transcribe',
         chunk_length_s: 30,
         no_repeat_ngram_size: 4,

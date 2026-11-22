@@ -164,7 +164,7 @@ export default function App({ installPrompt }: { installPrompt: () => (() => voi
         },
         onFallback: () => setStatus(t('status.sttFallback')),
       },
-      { lang: settings.sttLang, autoStopMs: settings.autoStopMs, whisperSize: settings.whisperModel },
+      { lang: settings.sttLang, uiLang: lang, autoStopMs: settings.autoStopMs, whisperSize: settings.whisperModel },
     );
     session.current = s;
     void s.start();

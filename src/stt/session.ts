@@ -3,7 +3,7 @@
 import type { Lang, WhisperSize } from '../../shared/types';
 import { concat, Downsampler, encodeWav, SR } from './audio';
 import { SarvamEngine, SttError, WebSpeechLive, webSpeechAvailable, WHISPER_MODELS, whisperWorker, WhisperEngine, type SttEngine } from './engines';
-import { EnergyVad } from './vad';
+import { EnergyVad, hasSpeech } from './vad';
 
 export type EngineId = 'sarvam' | 'whisper' | 'webspeech' | 'typing';
 export type VoiceState = 'idle' | 'listening' | 'thinking';
@@ -45,6 +45,7 @@ export class VoiceSession {
   private chain: Promise<void> = Promise.resolve();
   private vad = new EnergyVad();
   private heardSpeech = false;
+  private settleChecked = false;
   private silenceMs = 0;
   private stopped = false;
   private live: WebSpeechLive | null = null;
@@ -54,7 +55,7 @@ export class VoiceSession {
 
   constructor(
     private cb: SessionCallbacks,
-    private opts: { lang: Lang | 'auto'; autoStopMs: number; whisperSize: WhisperSize; maxMs?: number },
+    private opts: { lang: Lang | 'auto'; uiLang: Lang; autoStopMs: number; whisperSize: WhisperSize; maxMs?: number },
   ) {}
 
   get engineUsed() {
@@ -112,8 +113,15 @@ export class VoiceSession {
     this.chunks.push(s);
     this.total += s.length;
     const frames = this.vad.push(s);
+    if (!this.settleChecked && this.vad.settled) {
+      // re-check the first 1.5 s with the clip-level VAD: a short note said right at the tap counts
+      this.settleChecked = true;
+      if (hasSpeech(concat(this.chunks))) this.heardSpeech = true;
+    }
     for (const f of frames) {
-      if (f.speech) {
+      // only trust decisions once the noise floor has settled, so shop noise at the tap
+      // cannot start the auto-stop countdown before the owner has said anything
+      if (f.speech && this.vad.settled) {
         this.heardSpeech = true;
         this.silenceMs = 0;
       } else this.silenceMs += 30;
@@ -141,10 +149,16 @@ export class VoiceSession {
     });
   }
 
+  /** Sarvam auto-detects for real. Transformers.js Whisper silently falls back to ENGLISH when no
+   *  language is given, so for Whisper "auto" means the owner's UI language (code-mixed English still works). */
+  private langFor(engine: EngineId): Lang | 'auto' {
+    return engine === 'whisper' && this.opts.lang === 'auto' ? this.opts.uiLang : this.opts.lang;
+  }
+
   private async transcribeWithFallback(seg: Float32Array): Promise<string> {
     if (!this.engine) return '';
     try {
-      return (await this.engine.transcribe(seg, this.opts.lang)).text;
+      return (await this.engine.transcribe(seg, this.langFor(this.engineId))).text;
     } catch (e) {
       if (this.engineId === 'sarvam') {
         // 402 (credits over), 429, timeout or anything else: switch to the offline pack for the session
@@ -153,7 +167,7 @@ export class VoiceSession {
           this.cb.onFallback?.('sarvam', 'whisper');
           this.engine = w;
           this.engineId = 'whisper';
-          return (await w.transcribe(seg, this.opts.lang)).text;
+          return (await w.transcribe(seg, this.langFor('whisper'))).text;
         }
         this.cb.onFallback?.('sarvam', 'typing');
       }
@@ -176,7 +190,7 @@ export class VoiceSession {
     } catch {
       /* ignore */
     }
-    if (!this.heardSpeech) {
+    if (!this.heardSpeech && !hasSpeech(concat(this.chunks))) {
       this.cb.onState('idle');
       return this.cb.onError('noSpeech');
     }

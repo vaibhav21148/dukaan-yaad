@@ -111,5 +111,7 @@ export function nameInText(name: string, text: string): boolean {
   const textWords = cleanName(text).split(' ');
   const textKeys = new Set(textWords.map(phoneticKey));
   const textRoman = new Set(textWords.map((w) => cleanName(toRoman(w))));
-  return core.some((w) => textRoman.has(cleanName(toRoman(w))) || textKeys.has(phoneticKey(w)));
+  // Marathi/Gujarati glue case markers onto names ("रमेशला", "રમેશને"): a spoken word that starts with the name counts.
+  const startsWith = (w: string) => w.length >= 3 && textWords.some((t) => t.startsWith(w));
+  return core.some((w) => textRoman.has(cleanName(toRoman(w))) || textKeys.has(phoneticKey(w)) || startsWith(w));
 }

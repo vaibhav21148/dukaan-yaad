@@ -117,7 +117,7 @@ export const DEFAULT_SETTINGS: Settings = {
   sttLang: 'auto',
   autoStopMs: 2000,
   readAloud: false,
-  whisperModel: 'base',
+  whisperModel: 'small', // smallest size that gave usable Hindi in evals (base wrote Urdu script); see docs/STT.md
   onlineAi: true,
   theme: 'system',
 };

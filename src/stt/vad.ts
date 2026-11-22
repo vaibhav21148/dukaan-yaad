@@ -11,13 +11,20 @@ export function rms(a: Float32Array, from = 0, to = a.length): number {
   return Math.sqrt(s / Math.max(1, to - from));
 }
 
-/** Streaming VAD with an adaptive noise floor and a short hangover. */
+/**
+ * Streaming VAD. Noise floor = quietest frame in the last ~1.5 s ("minimum statistics"), so it works
+ * even when the owner starts talking the instant they tap (gaps between words reveal the floor),
+ * and steady shop noise raises the floor instead of counting as speech.
+ */
 export class EnergyVad {
-  private floor = 0;
-  private frames = 0;
+  private ring: number[] = [];
   private hang = 0;
   private pending = new Float32Array(0);
   speaking = false;
+  /** true once 1.5 s of history exists; before that, decisions are provisional */
+  get settled() {
+    return this.ring.length >= 50;
+  }
   constructor(private minThreshold = 0.012, private ratio = 2.6, private hangFrames = 10) {}
 
   /** Feed 16 kHz samples; returns per-frame decisions. */
@@ -29,15 +36,14 @@ export class EnergyVad {
     let off = 0;
     for (; off + FRAME <= buf.length; off += FRAME) {
       const e = rms(buf, off, off + FRAME);
-      this.frames++;
-      if (this.frames <= 10) this.floor = this.frames === 1 ? e : Math.min(this.floor, e);
-      const thr = Math.max(this.minThreshold, this.floor * this.ratio);
+      this.ring.push(e);
+      if (this.ring.length > 50) this.ring.shift();
+      // until 1.5 s of history exists, assume a quiet room so a word spoken right at the tap is not lost
+      const floor = Math.max(0.002, Math.min(...this.ring, this.ring.length < 50 ? 0.004 : Infinity));
+      const thr = Math.max(this.minThreshold, floor * this.ratio);
       const isSpeech = e > thr;
       if (isSpeech) this.hang = this.hangFrames;
-      else {
-        this.hang = Math.max(0, this.hang - 1);
-        this.floor = this.floor * 0.97 + e * 0.03; // follow background noise slowly
-      }
+      else this.hang = Math.max(0, this.hang - 1);
       this.speaking = isSpeech || this.hang > 0;
       out.push({ speech: this.speaking, level: e });
     }
@@ -46,10 +52,23 @@ export class EnergyVad {
   }
 }
 
-/** Per-frame speech flags for a whole clip (offline pass). */
-export function speechFrames(a: Float32Array): boolean[] {
-  const v = new EnergyVad();
-  return v.push(a).map((f) => f.speech);
+/**
+ * Per-frame speech flags for a whole clip. Non-causal: the floor is the quietest frame within
+ * +-0.75 s, so speech at the very start is kept and steady noise is not mistaken for speech.
+ */
+export function speechFrames(a: Float32Array, minThreshold = 0.012, ratio = 2.6, hangFrames = 10): boolean[] {
+  const n = Math.floor(a.length / FRAME);
+  const e = Array.from({ length: n }, (_, i) => rms(a, i * FRAME, (i + 1) * FRAME));
+  const out: boolean[] = [];
+  let hang = 0;
+  for (let i = 0; i < n; i++) {
+    let floor = Infinity;
+    for (let j = Math.max(0, i - 25); j < Math.min(n, i + 26); j++) floor = Math.min(floor, e[j]);
+    const isSpeech = e[i] > Math.max(minThreshold, Math.max(0.002, floor) * ratio);
+    hang = isSpeech ? hangFrames : Math.max(0, hang - 1);
+    out.push(isSpeech || hang > 0);
+  }
+  return out;
 }
 
 export function speechRatio(a: Float32Array): number {

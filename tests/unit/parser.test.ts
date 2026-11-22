@@ -162,6 +162,10 @@ describe('never-invent guard (used for the AI path)', () => {
     expect(nulled.map((n) => n.field)).toEqual(['amount', 'party', 'item', 'due']);
     expect(entries.every((e) => e.unclear)).toBe(true);
   });
+  it('accepts a name with a glued Marathi/Gujarati suffix', () => {
+    expect(neverInvent([{ type: 'supplier_due', party: 'रमेश', amount: 5000, item: null, due: null, unclear: null, quote: '' }], 'रमेशला पाच हजार द्यायचे', 'mr').nulled).toEqual([]);
+    expect(neverInvent([{ type: 'supplier_due', party: 'રમેશભાઈ', amount: 5000, item: null, due: null, unclear: null, quote: '' }], 'રમેશભાઈને 5000 આપવાના', 'gu').nulled).toEqual([]);
+  });
   it('accepts a known name spoken in another script', () => {
     const { nulled } = neverInvent([{ type: 'credit_given', party: 'Sharma ji', amount: 200, item: null, due: null, unclear: null, quote: '' }], 'शर्मा जी का 200 उधार', 'hi');
     expect(nulled).toEqual([]);

@@ -1,0 +1,5 @@
+{"id":"ask-hi-01","example":true,"lang":"hi","ledger_fixture":"shop-a","question":"Sharma ji ka kitna baaki hai?","expected_answer_facts":["650"],"forbidden_facts":["120"],"notes":"EXAMPLE. Must not mix up Sharma ji and Sharma uncle."}
+{"id":"ask-hi-02","example":true,"lang":"hi","ledger_fixture":"shop-a","question":"Kal kisko dena hai?","expected_answer_facts":["Ramesh","8,200","Gupta","1,800"],"forbidden_facts":[],"notes":"EXAMPLE."}
+{"id":"ask-hi-03","example":true,"lang":"hi","ledger_fixture":"shop-a","question":"Kulkarni ka kitna baaki hai?","expected_answer_facts":[],"forbidden_facts":["650","8,200","350"],"notes":"EXAMPLE. Unknown person: must say not found, no number."}
+{"id":"ask-en-01","example":true,"lang":"en","ledger_fixture":"shop-a","question":"What has run out?","expected_answer_facts":["Tata namak","Maggi"],"forbidden_facts":[],"notes":"EXAMPLE."}
+{"id":"ask-en-02","example":true,"lang":"en","ledger_fixture":"shop-a","question":"How much do customers owe me in total?","expected_answer_facts":["1,120"],"forbidden_facts":[],"notes":"EXAMPLE. 650+120+350."}
