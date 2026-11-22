@@ -64,7 +64,7 @@ export async function runAsk(): Promise<{ md: string }> {
   const exampleOnly = cases.length > 0 && cases.every((c) => c.example);
   const md = [
     '## Ask (Poochho)',
-    exampleOnly ? '> **Only EXAMPLE cases are present.** Add real ones to `evals/cases/ask.jsonl`.\n' : '',
+    exampleOnly ? '> **Only example cases are present.**\n' : '> Test set written during development, run against the saved-ledger fixture.\n',
     '| Path | Cases | Answers match saved data (target 100%) |',
     '|---|---|---|',
     ...[...byPath.entries()].map(([p, l]) => `| ${p} | ${l.length} | ${Math.round((l.filter((r) => r.ok).length / l.length) * 100)}% |`),

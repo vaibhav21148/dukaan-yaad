@@ -77,7 +77,7 @@ export async function runExtraction(): Promise<{ md: string; scores: ExtractionS
   const exampleOnly = cases.length > 0 && cases.every((c) => (c as { example?: boolean }).example);
   const md = [
     '## Extraction',
-    exampleOnly ? '> **Only the 5 EXAMPLE cases written by the build are present.** These numbers say nothing about real quality until the real cases are added to `evals/cases/extraction.jsonl`.\n' : '',
+    exampleOnly ? '> **Only example cases are present.**\n' : '> Test set written during development (not yet collected from shop owners); every case is scored as the owner would see it.\n',
     `Cases: ${cases.length}. Paths run: ${wanted.filter((w) => !skipped.some((s) => s.startsWith(w))).join(', ') || 'none'}.${skipped.length ? ` Skipped: ${skipped.join(', ')}.` : ''}`,
     '',
     '### By path',

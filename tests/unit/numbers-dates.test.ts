@@ -20,7 +20,8 @@ describe('normalizeNumbers: spoken numbers in 4 languages', () => {
     ['ढाई सौ', '250'],
     ['पाच हजार', '5000'],
     ['दीड हजार', '1500'],
-    ['तीनशे', 'तीनशे'], // unknown compound stays untouched rather than guessed
+    ['तीनशे', '300'],
+    ['पाचशे पन्नास', '550'],
     ['પાંચ સો', '500'],
     ['દોઢ હજાર', '1500'],
     ['fifteen hundred', '1500'],

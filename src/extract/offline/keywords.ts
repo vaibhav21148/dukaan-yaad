@@ -38,7 +38,7 @@ export const KW = {
   ],
   /** Owner still has to pay someone */
   due: [
-    'dena', 'dena hai', 'dene', 'dene hai', 'dene hain', 'dena baaki', 'bhejna', 'bhejna hai', 'payment', 'payment dena', 'payment baaki', 'chukana', 'chukana hai', 'have to pay', 'need to pay', 'to pay', 'owe', 'due',
+    'dena', 'dena hai', 'dene', 'dene hai', 'dene hain', 'dena baaki', 'bhejna', 'bhejna hai', 'bhejne', 'bhejne hai', 'bhejni hai', 'bhejne hain', 'payment', 'payment dena', 'payment baaki', 'chukana', 'chukana hai', 'have to pay', 'need to pay', 'to pay', 'owe', 'due',
     'देना', 'देना है', 'देने', 'देने हैं', 'भेजना', 'चुकाना', 'पेमेंट',
     'द्यायचे', 'द्यायचे आहेत', 'द्यायचा', 'देणे', 'देणे आहे', 'भरायचे', 'dyayche', 'dene ahe',
     'આપવાના', 'આપવાના છે', 'આપવા', 'ચૂકવવાના', 'ચૂકવવા', 'apvana', 'aapvana', 'chukavvana',
@@ -63,7 +63,7 @@ export const MARKERS = {
 
 /** Glued suffixes (Marathi / Gujarati often attach the marker to the name). */
 export const GLUED = {
-  agent: ['ने', 'नी', 'कडून', 'પાસેથી'],
+  agent: ['ने', 'नी', 'कडून', 'પાસેથી', 'એ'],
   to: ['ला', 'ना', 'ंना', 'ને'],
   of: ['चे', 'ची', 'चा', 'कडे', 'નું', 'ની', 'નો', 'ના'],
 };
@@ -83,5 +83,5 @@ export const FILLER = [
 export const SUPPLIER_HINTS = ['distributor', 'distributors', 'supplier', 'agency', 'agencies', 'traders', 'trader', 'wholesale', 'wholesaler', 'company', 'enterprises', 'seth', 'sheth', 'wale', 'wala', 'vala', 'डिस्ट्रीब्यूटर', 'सप्लायर', 'एजेंसी', 'वाले', 'सेठ', 'शेठ', 'ડિસ્ટ્રીબ્યુટર', 'શેઠ', 'વાળા'];
 
 /** Words removed from order/item text (time and filler). */
-export const TIME_WORDS = ['kal', 'parso', 'aaj', 'subah', 'shaam', 'sham', 'raat', 'dopahar', 'tak', 'ko', 'hai', 'dena', 'deni', 'dene', 'ka', 'ke', 'ki', 'morning', 'evening', 'tonight', 'by', 'tomorrow', 'today',
+export const TIME_WORDS = ['for', 'of', 'kal', 'parso', 'aaj', 'subah', 'shaam', 'sham', 'raat', 'dopahar', 'tak', 'ko', 'hai', 'dena', 'deni', 'dene', 'ka', 'ke', 'ki', 'morning', 'evening', 'tonight', 'by', 'tomorrow', 'today',
   'कल', 'परसों', 'आज', 'सुबह', 'शाम', 'रात', 'तक', 'को', 'है', 'देना', 'उद्या', 'सकाळी', 'संध्याकाळी', 'पर्यंत', 'आहे', 'द्यायची', 'કાલે', 'આજે', 'સવારે', 'સાંજે', 'સુધી', 'છે', 'આપવાનો', 'આપવાનું'];

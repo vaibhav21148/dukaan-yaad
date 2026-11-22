@@ -126,6 +126,15 @@ add(80, 'ऐंशी');
 add(85, 'पंच्याऐंशी');
 add(90, 'नव्वद');
 add(95, 'पंचाण्णव');
+// Marathi compound hundreds: "पाचशे" = 500
+add(200, 'दोनशे', 'donshe');
+add(300, 'तीनशे', 'teenshe');
+add(400, 'चारशे', 'charshe');
+add(500, 'पाचशे', 'pachshe', 'paachshe');
+add(600, 'सहाशे', 'sahashe');
+add(700, 'सातशे', 'satshe');
+add(800, 'आठशे', 'aathshe');
+add(900, 'नऊशे', 'naushe');
 // ---- Gujarati ----
 add(1, 'એક');
 add(2, 'બે');
@@ -310,8 +319,9 @@ export function normalizeNumbers(input: string): string {
         if (current === null) {
           current = v + mod;
           mod = 0;
-        } else if (lastKind === 'h' && current % 100 === 0 && v < 100) {
-          current += v;
+        } else if ((lastKind === 'h' || (lastKind === 'unit' && current >= 100)) && current % 100 === 0 && v < 100) {
+          current += v; // "teen sau pachas", "पाचशे पन्नास"
+
         } else if (lastKind === 'unit' && current % 10 === 0 && current < 100 && v < 10 && current >= 20) {
           current += v; // "twenty five"
         } else break;
