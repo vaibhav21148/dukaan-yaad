@@ -69,6 +69,18 @@ describe('local Ask answers only from saved data', () => {
     expect(answerLocal('customers se kitna milna hai', s, 'hi')).toContain('₹400');
     expect(answerLocal('How much do I owe suppliers?', s, 'en')).toContain('₹4,800');
   });
+  it('exact name answers for that party only; bare surname lists all matches', () => {
+    const two = snapshot(
+      [E({ type: 'credit_given', partyId: 'a', party: 'Sharma ji', amount: 50 }), E({ type: 'credit_given', partyId: 'b', party: 'Sharma uncle', amount: 70 })],
+      [
+        { id: 'a', name: 'Sharma ji', aliases: [], createdAt: '' },
+        { id: 'b', name: 'Sharma uncle', aliases: [], createdAt: '' },
+      ],
+      today,
+    );
+    expect(answerLocal('Sharma ji ka kitna baaki hai?', two, 'hi')).toBe('Sharma ji ka ₹50 udhaar baaki hai.');
+    expect(answerLocal('Sharma ka kitna baaki hai?', two, 'hi').split('\n')).toHaveLength(2);
+  });
   it('unknown -> says so, no guess', () => {
     expect(answerLocal('Kulkarni ka kitna?', s, 'hi')).toMatch(/nahi mila/);
   });
@@ -106,6 +118,14 @@ describe('save, alias learning and undo (IndexedDB)', () => {
     expect(await db.notes.count()).toBe(0);
     expect(await db.parties.count()).toBe(1);
     expect((await db.parties.get('s'))!.aliases).toEqual([]);
+  });
+  it('does not link a customer to a near-name supplier; asks instead', async () => {
+    const ps = [{ id: 'g', name: 'Gupta Traders', aliases: [], createdAt: '' }];
+    const [d] = toDrafts([{ type: 'pending_order', party: 'Gupta ji', amount: null, item: 'chawal', due: null, unclear: null, quote: '' }], 'Gupta ji ka order chawal', ps, 'hi', { g: 'supplier' });
+    expect(d.partyId).toBeNull();
+    expect(d.choices).toEqual([{ partyId: 'g', name: 'Gupta Traders' }]);
+    const [d2] = toDrafts([{ type: 'supplier_due', party: 'Gupta ji', amount: 100, item: null, due: null, unclear: null, quote: '' }], 'Gupta ji ko 100 dena', ps, 'hi', { g: 'supplier' });
+    expect(d2.partyId).toBe('g');
   });
   it('Paid and Mangwa liya are undoable', async () => {
     await db.entries.add(E({ id: 'd1', type: 'supplier_due', partyId: 's', amount: 900 }));

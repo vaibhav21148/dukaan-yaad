@@ -1,6 +1,7 @@
 // Offline "Poochho": answers ONLY from the saved ledger snapshot. No guessing.
 import { containsWord } from '../../shared/dates';
-import { nameCore, nameInText } from '../../shared/names';
+import { cleanName, nameInText } from '../../shared/names';
+import { toRoman } from '../../shared/translit';
 import { addDaysIso } from '../../shared/dates';
 import type { Lang, LedgerSnapshot } from '../../shared/types';
 
@@ -141,18 +142,24 @@ export function answerLocal(question: string, s: LedgerSnapshot, lang: Lang): st
 
   // 1) A named person: answer for that person only.
   const names = new Map<string, string>();
-  for (const x of s.suppliers_owed) names.set(nameCore(x.name), x.name);
-  for (const x of s.customers_owe) names.set(nameCore(x.name), x.name);
-  for (const o of s.pending_orders) if (o.party) names.set(nameCore(o.party), o.party);
-  const hits = [...names.values()].filter((n) => nameInText(n, question));
+  // keyed by the full saved name: "Sharma ji" and "Sharma uncle" are different people
+  for (const x of s.suppliers_owed) names.set(cleanName(x.name), x.name);
+  for (const x of s.customers_owe) names.set(cleanName(x.name), x.name);
+  for (const o of s.pending_orders) if (o.party) names.set(cleanName(o.party), o.party);
+  // If the question says a saved name exactly ("Sharma ji"), answer for that one only;
+  // a bare "Sharma" matches every Sharma, and we list them all rather than guess.
+  const qClean = ` ${cleanName(toRoman(question))} `;
+  const all = [...names.values()];
+  const exact = all.filter((n) => qClean.includes(` ${cleanName(toRoman(n))} `));
+  const hits = exact.length ? exact : all.filter((n) => nameInText(n, question));
   if (hits.length) {
     const lines: string[] = [];
     for (const n of hits) {
-      const core = nameCore(n);
+      const key = cleanName(n);
       const before = lines.length;
-      for (const x of s.suppliers_owed) if (nameCore(x.name) === core) lines.push(t.supOwe(x.name, rs(x.amount), f(x.due)));
-      for (const x of s.customers_owe) if (nameCore(x.name) === core) lines.push(t.cusOwe(x.name, rs(x.amount)));
-      for (const o of s.pending_orders) if (o.party && nameCore(o.party) === core) lines.push(t.order(o.party, o.item ?? '', f(o.due)));
+      for (const x of s.suppliers_owed) if (cleanName(x.name) === key) lines.push(t.supOwe(x.name, rs(x.amount), f(x.due)));
+      for (const x of s.customers_owe) if (cleanName(x.name) === key) lines.push(t.cusOwe(x.name, rs(x.amount)));
+      for (const o of s.pending_orders) if (o.party && cleanName(o.party) === key) lines.push(t.order(o.party, o.item ?? '', f(o.due)));
       if (lines.length === before) lines.push(t.nothingFor(n));
     }
     return lines.join('\n');

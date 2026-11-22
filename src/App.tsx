@@ -8,13 +8,13 @@ import { Toast, type ToastMsg } from './components/Toast';
 import { db, putSettings, type CurrentDraft } from './db/db';
 import { clearDemo, hasDemo as hasDemoFn, markDone, markPaid, markSettled, saveNote, wipeAll, type Undo } from './db/repo';
 import { demoExtraction, loadDemoLedger } from './domain/demo';
-import { toDrafts } from './domain/drafts';
+import { toDrafts, type Sides } from './domain/drafts';
 import { customerCredit, partySide, snapshot, supplierDues, total, type Balance } from './domain/ledger';
 import { pruneCache, understand } from './extract';
 import type { KnownParty } from './extract/offline/parser';
 import i18n, { HTML_LANG, LANG_NAMES } from './i18n';
 import { fetchWithTimeout } from './lib/hash';
-import { rs, useData, useOnline, useToday } from './lib/hooks';
+import { rs, useData, useFmtDate, useOnline, useToday } from './lib/hooks';
 import { Ask, speak } from './screens/Ask';
 import { Home } from './screens/Home';
 import { Khata } from './screens/Khata';
@@ -50,7 +50,7 @@ export default function App({ installPrompt }: { installPrompt: () => (() => voi
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState('');
   const [toast, setToast] = useState<ToastMsg | null>(null);
-  const [health, setHealth] = useState<Health>({ llm: false, stt: false });
+  const [health, setHealth] = useState<Health & { checked: boolean }>({ llm: false, stt: false, checked: false });
   const [engine, setEngine] = useState<EngineId>('typing');
   const [packsTick, setPacksTick] = useState(0);
   const [demoOn, setDemoOn] = useState(false);
@@ -76,17 +76,17 @@ export default function App({ installPrompt }: { installPrompt: () => (() => voi
     fetchWithTimeout('/api/health', {}, 4000)
       .then((r) => (r.ok ? r.json() : { llm: false, stt: false }))
       .then((h: Health) => {
-        setHealth({ llm: !!h.llm, stt: !!h.stt });
         setSarvamConfigured(!!h.stt);
+        setHealth({ llm: !!h.llm, stt: !!h.stt, checked: true });
       })
       .catch(() => {
-        setHealth({ llm: false, stt: false });
         setSarvamConfigured(false);
+        setHealth({ llm: false, stt: false, checked: true });
       });
   }, [online]);
   useEffect(() => {
     void chooseEngine(settings.whisperModel).then(setEngine);
-  }, [online, health.stt, settings.whisperModel, packsTick, voice]);
+  }, [online, health, settings.whisperModel, packsTick, voice]);
   useEffect(() => {
     void hasDemoFn().then(setDemoOn);
   }, [entries.length]);
@@ -99,6 +99,8 @@ export default function App({ installPrompt }: { installPrompt: () => (() => voi
     (): KnownParty[] => parties.map((p) => ({ name: p.name, aliases: p.aliases, side: partySide(entries, p.id) })),
     [parties, entries],
   );
+  const sidesOf = (es = entries, ps = parties): Sides => Object.fromEntries(ps.map((p) => [p.id, partySide(es, p.id)]));
+  const fmtDate = useFmtDate();
   const showToast = (text: string, undo?: Undo) => setToast({ id: ++toastSeq, text, undo });
   const closeToast = useCallback(() => setToast(null), []);
 
@@ -112,7 +114,7 @@ export default function App({ installPrompt }: { installPrompt: () => (() => voi
       const r = await understand(clean, { lang, today, parties: knownParties(), online: aiOn });
       if (r.reason === 'ai-failed') setStatus(t('status.aiFailed'));
       if (r.reason === 'no-network' && settings.onlineAi && health.llm) setStatus(t('status.offlineAi'));
-      const fresh = toDrafts(r.entries, clean, parties, lang);
+      const fresh = toDrafts(r.entries, clean, parties, lang, sidesOf());
       const cur = await db.drafts.get('current');
       const next: CurrentDraft = cur
         ? { ...cur, text: `${cur.text} ${clean}`, entries: [...cur.entries, ...fresh], offlineParsed: cur.offlineParsed || r.offline, audio: cur.audio ?? audio, stt: cur.stt ?? stt }
@@ -132,7 +134,7 @@ export default function App({ installPrompt }: { installPrompt: () => (() => voi
     try {
       const r = await understand(draft.text, { lang, today, parties: knownParties(), online: true });
       if (r.offline) return setStatus(t('status.aiFailed'));
-      await db.drafts.put({ ...draft, entries: toDrafts(r.entries, draft.text, parties, lang), by: r.by, offlineParsed: false });
+      await db.drafts.put({ ...draft, entries: toDrafts(r.entries, draft.text, parties, lang, sidesOf()), by: r.by, offlineParsed: false });
     } finally {
       setBusy(false);
     }
@@ -185,8 +187,9 @@ export default function App({ installPrompt }: { installPrompt: () => (() => voi
   const tryExample = async () => {
     if (!(await hasDemoFn())) await loadDemoLedger(lang, today);
     const all = await db.parties.toArray();
+    const allEntries = await db.entries.toArray();
     const ex = demoExtraction(lang, today);
-    await db.drafts.put({ id: 'current', text: ex.text, entries: toDrafts(ex.entries, ex.text, all, lang), by: 'demo', stt: null, audio: null, offlineParsed: false, createdAt: new Date().toISOString() });
+    await db.drafts.put({ id: 'current', text: ex.text, entries: toDrafts(ex.entries, ex.text, all, lang, sidesOf(allEntries, all)), by: 'demo', stt: null, audio: null, offlineParsed: false, createdAt: new Date().toISOString() });
     setShowSettings(false);
     setTab('home');
     setStatus(t('example.loaded'));
@@ -321,6 +324,9 @@ export default function App({ installPrompt }: { installPrompt: () => (() => voi
             <Review
               draft={draft}
               parties={parties}
+              sides={sidesOf()}
+              today={today}
+              fmtDate={fmtDate}
               lang={lang}
               canReonline={draft.offlineParsed && aiOn}
               busy={busy}

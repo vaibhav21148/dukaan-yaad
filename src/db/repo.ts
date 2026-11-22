@@ -28,7 +28,7 @@ export async function saveNote(input: SaveInput, d: DukaanDb = db): Promise<Undo
   const createdParties: string[] = [];
   const changedParties: Party[] = []; // previous versions, for undo
   const entryIds: string[] = [];
-  await d.transaction('rw', d.entries, d.parties, d.notes, async () => {
+  await d.transaction('rw', [d.entries, d.parties, d.notes, d.drafts], async () => {
     const parties = await d.parties.toArray();
     for (const de of input.entries) {
       let partyId = de.partyId;
@@ -74,7 +74,7 @@ export async function saveNote(input: SaveInput, d: DukaanDb = db): Promise<Undo
     }
     const note: Note = { id: noteId, text: input.text, createdAt: at, entryIds, by: input.by, stt: input.stt, lang: input.lang, demo: input.demo || undefined };
     await d.notes.add(note);
-    await d.drafts.delete('current').catch(() => undefined);
+    await d.drafts.delete('current');
   });
   return {
     noteId,

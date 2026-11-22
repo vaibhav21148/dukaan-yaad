@@ -4,8 +4,9 @@ import { matchParty, nameCore } from '../../shared/names';
 import { phoneticKey, toRoman } from '../../shared/translit';
 import { parseOffline, pickAmount } from '../../src/extract/offline/parser';
 
-const ctx = { today: '2026-11-22', lang: 'hi' as const, parties: [] };
-const p = (t: string, c: Partial<typeof ctx> = {}) => parseOffline(t, { ...ctx, ...c } as never);
+import type { ParseContext } from '../../src/extract/offline/parser';
+const ctx: ParseContext = { today: '2026-11-22', lang: 'hi', parties: [] };
+const p = (t: string, c: Partial<ParseContext> = {}) => parseOffline(t, { ...ctx, ...c });
 const pick = (e: ReturnType<typeof p>[number]) => ({ type: e.type, party: e.party, amount: e.amount, item: e.item, due: e.due });
 
 describe('offline parser: the prototype example', () => {

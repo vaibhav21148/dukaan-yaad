@@ -160,6 +160,9 @@ h3 { font-size: 18px; margin: 18px 0 8px; color: var(--blue); }
 .quote { font-size: 14px; color: var(--mute); margin-top: 6px; overflow-wrap: anywhere; }
 .quote.ink { color: var(--ink); font-size: 16px; }
 .linked { margin-top: 6px; }
+.summary { margin-top: 8px; display: grid; gap: 4px; justify-items: start; }
+.summary .row { width: 100%; }
+.sum-name { font-size: 18px; }
 .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
 .grid label, .field { font-size: 14px; color: var(--mute); display: grid; gap: 2px; }
 .field { margin-bottom: 10px; }

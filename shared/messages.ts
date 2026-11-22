@@ -14,7 +14,8 @@ export type DoubtKey =
   | 'itemNotHeard'
   | 'notUnderstood'
   | 'whichParty'
-  | 'whatItem';
+  | 'whatItem'
+  | 'newPerson';
 
 const M: Record<Lang, Record<DoubtKey, string>> = {
   hi: {
@@ -30,6 +31,7 @@ const M: Record<Lang, Record<DoubtKey, string>> = {
     notUnderstood: 'Samajh nahi aaya. Type aur naam check karo.',
     whichParty: 'Kaun se {{name}}? {{options}}?',
     whatItem: 'Kya saamaan?',
+    newPerson: 'Naya naam',
   },
   en: {
     howMuchDue: 'How much is due?',
@@ -44,6 +46,7 @@ const M: Record<Lang, Record<DoubtKey, string>> = {
     notUnderstood: "Didn't understand. Check type and name.",
     whichParty: 'Which {{name}}? {{options}}?',
     whatItem: 'Which item?',
+    newPerson: 'New person',
   },
   mr: {
     howMuchDue: 'किती द्यायचे आहेत?',
@@ -58,6 +61,7 @@ const M: Record<Lang, Record<DoubtKey, string>> = {
     notUnderstood: 'समजले नाही. प्रकार आणि नाव तपासा.',
     whichParty: 'कोणते {{name}}? {{options}}?',
     whatItem: 'कोणता माल?',
+    newPerson: 'नवीन नाव',
   },
   gu: {
     howMuchDue: 'કેટલા આપવાના છે?',
@@ -72,6 +76,7 @@ const M: Record<Lang, Record<DoubtKey, string>> = {
     notUnderstood: 'સમજાયું નહીં. પ્રકાર અને નામ તપાસો.',
     whichParty: 'કયા {{name}}? {{options}}?',
     whatItem: 'કયો માલ?',
+    newPerson: 'નવું નામ',
   },
 };
 

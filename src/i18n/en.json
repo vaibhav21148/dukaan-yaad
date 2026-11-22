@@ -1,7 +1,17 @@
 {
-  "app": { "name": "Dukaan Yaad", "tagline": "Speak once, the shop remembers" },
-  "totals": { "milna": "Customers owe me", "dena": "I owe suppliers" },
-  "nav": { "home": "Today", "khata": "Khata", "ask": "Ask" },
+  "app": {
+    "name": "Dukaan Yaad",
+    "tagline": "Speak once, the shop remembers"
+  },
+  "totals": {
+    "milna": "Customers owe me",
+    "dena": "I owe suppliers"
+  },
+  "nav": {
+    "home": "Today",
+    "khata": "Khata",
+    "ask": "Ask"
+  },
   "mic": {
     "idle": "Tap and speak",
     "listening": "Listening...",
@@ -16,9 +26,25 @@
     "noSpeech": "Could not hear anything. Please speak again.",
     "unavailable": "Speaking is not available on this phone right now. Please type."
   },
-  "type": { "open": "Type instead", "close": "Close", "placeholder": "e.g. Owe Ramesh distributor 5000 by Friday, Maggi finished, Sharma ji took 200 on credit", "go": "Understand and show", "empty": "Say or type something first." },
-  "example": { "try": "Try with example", "loaded": "Example ledger and note loaded. Check the entries." },
-  "chip": { "online": "Online", "offlinePack": "Offline pack", "browser": "Browser", "typing": "Typing", "offlineMode": "Offline mode", "ai": "AI" },
+  "type": {
+    "open": "Type instead",
+    "close": "Close",
+    "placeholder": "e.g. Owe Ramesh distributor 5000 by Friday, Maggi finished, Sharma ji took 200 on credit",
+    "go": "Understand and show",
+    "empty": "Say or type something first."
+  },
+  "example": {
+    "try": "Try with example",
+    "loaded": "Example ledger and note loaded. Check the entries."
+  },
+  "chip": {
+    "online": "Online",
+    "offlinePack": "Offline pack",
+    "browser": "Browser",
+    "typing": "Typing",
+    "offlineMode": "Offline mode",
+    "ai": "AI"
+  },
   "review": {
     "title": "Check, then save",
     "hint": "Look at each entry. Change or remove anything wrong. Yellow lines mark a doubt.",
@@ -35,10 +61,26 @@
     "newPerson": "New person",
     "chooseFirst": "Choose first: which name?",
     "noteText": "Your note",
-    "by": { "gemini": "Understood by AI", "groq": "Understood by AI", "anthropic": "Understood by AI", "offline": "Understood offline", "demo": "Example", "cache": "Same as before" },
+    "by": {
+      "gemini": "Understood by AI",
+      "groq": "Understood by AI",
+      "anthropic": "Understood by AI",
+      "offline": "Understood offline",
+      "demo": "Example",
+      "cache": "Same as before"
+    },
     "leaveFirst": "Save the entries or tap \"Discard\" first.",
     "listenAgain": "Play audio",
-    "fields": { "type": "Type", "party": "Name", "amount": "Amount (₹)", "due": "Date", "item": "Item", "who": "Who" }
+    "fields": {
+      "type": "Type",
+      "party": "Name",
+      "amount": "Amount (₹)",
+      "due": "Date",
+      "item": "Item",
+      "who": "Who"
+    },
+    "edit": "Edit",
+    "doneEdit": "Done"
   },
   "types": {
     "supplier_due": "To pay supplier",
@@ -60,10 +102,19 @@
     "entries": "{{count}} entries",
     "nothing": "All clear. Nothing pending for tomorrow."
   },
-  "date": { "late": "overdue ({{d}})", "today": "today", "tomorrow": "tomorrow" },
+  "date": {
+    "late": "overdue ({{d}})",
+    "today": "today",
+    "tomorrow": "tomorrow"
+  },
   "khata": {
     "title": "Khata",
-    "tabs": { "sup": "Suppliers", "cus": "Customers", "maal": "Reorder", "ord": "Orders" },
+    "tabs": {
+      "sup": "Suppliers",
+      "cus": "Customers",
+      "maal": "Reorder",
+      "ord": "Orders"
+    },
     "paid": "Paid",
     "settle": "Received",
     "gotIt": "Ordered",
@@ -91,7 +142,17 @@
     "ex3": "What has run out?",
     "ex4": "How much do customers owe me?"
   },
-  "toast": { "saved": "Saved.", "paid": "Payment recorded.", "settled": "Marked received.", "done": "Marked done.", "undo": "Undo", "undone": "Undone.", "discarded": "Note discarded.", "demoCleared": "Example data removed.", "wiped": "All data wiped." },
+  "toast": {
+    "saved": "Saved.",
+    "paid": "Payment recorded.",
+    "settled": "Marked received.",
+    "done": "Marked done.",
+    "undo": "Undo",
+    "undone": "Undone.",
+    "discarded": "Note discarded.",
+    "demoCleared": "Example data removed.",
+    "wiped": "All data wiped."
+  },
   "settings": {
     "title": "Settings",
     "open": "Open settings",
@@ -138,7 +199,17 @@
     "storage": "Using {{mb}} MB",
     "persist": "Ask the phone to keep data safe"
   },
-  "onboard": { "title": "Choose language", "sub": "You can change this later in Settings.", "go": "Start" },
-  "status": { "offlineAi": "No internet, understood on the phone. Check entries carefully.", "aiFailed": "AI did not respond, understood on the phone. Check entries carefully.", "sttFallback": "Online listening failed, using the phone from now on." },
-  "common": { "rupee": "₹" }
+  "onboard": {
+    "title": "Choose language",
+    "sub": "You can change this later in Settings.",
+    "go": "Start"
+  },
+  "status": {
+    "offlineAi": "No internet, understood on the phone. Check entries carefully.",
+    "aiFailed": "AI did not respond, understood on the phone. Check entries carefully.",
+    "sttFallback": "Online listening failed, using the phone from now on."
+  },
+  "common": {
+    "rupee": "₹"
+  }
 }

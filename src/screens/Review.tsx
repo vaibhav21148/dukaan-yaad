@@ -1,12 +1,16 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ENTRY_TYPES, type DraftEntry, type Lang, type Party } from '../../shared/types';
-import { chooseParty, NEW_PARTY, resolveParty } from '../domain/drafts';
+import { chooseParty, NEW_PARTY, resolveParty, type Sides } from '../domain/drafts';
+import { rs } from '../lib/hooks';
 import type { CurrentDraft } from '../db/db';
 
 export function Review(props: {
   draft: CurrentDraft;
   parties: Party[];
+  sides: Sides;
+  today: string;
+  fmtDate: (d: string | null, today: string) => string;
   lang: Lang;
   canReonline: boolean;
   busy: boolean;
@@ -20,12 +24,14 @@ export function Review(props: {
   const list = draft.entries;
   const byId = useMemo(() => new Map(parties.map((p) => [p.id, p])), [parties]);
   const unresolved = list.some((e) => e.choices?.length);
+  const [editing, setEditing] = useState<Set<string>>(new Set());
+  const toggle = (k: string) => setEditing((s0) => { const n = new Set(s0); if (n.has(k)) n.delete(k); else n.add(k); return n; });
   const audioUrl = useMemo(() => (draft.audio ? URL.createObjectURL(draft.audio) : null), [draft.audio]);
 
   const set = (i: number, patch: Partial<DraftEntry>) => {
     const next = [...list];
     let d = { ...next[i], ...patch };
-    if ('party' in patch) d = resolveParty({ ...d, forceNew: false }, parties, lang);
+    if ('party' in patch || 'type' in patch) d = resolveParty({ ...d, forceNew: false }, parties, lang, props.sides);
     // a value the owner typed is no longer a doubt about that field
     if ('amount' in patch && patch.amount != null && d.unclear && /kitna|kitne|how much|किती|કેટલ|rakam|amount|रक्कम|રકમ/i.test(d.unclear)) d.unclear = null;
     next[i] = d;
@@ -61,14 +67,32 @@ export function Review(props: {
       {list.map((e, i) => {
         const linked = e.partyId ? byId.get(e.partyId) : null;
         const doubt = [e.choiceQuestion, e.unclear].filter(Boolean).join(' ');
+        // cards with a doubt (other than "which person") open for editing; clean cards stay a short summary
+        const open = editing.has(e.key) || (!!e.unclear && !e.choices);
         return (
           <div className={`card entry ${doubt ? 'has-doubt' : ''}`} key={e.key}>
             <div className="row">
               <span className="tag">{t(`types.${e.type}`)}</span>
-              <button type="button" className="small" onClick={() => del(i)} aria-label={t('review.removeLabel')}>
-                {t('review.remove')}
-              </button>
+              <div className="acts m0">
+                <button type="button" className="small" aria-expanded={open} onClick={() => toggle(e.key)}>
+                  {open ? t('review.doneEdit') : t('review.edit')}
+                </button>
+                <button type="button" className="small" onClick={() => del(i)} aria-label={t('review.removeLabel')}>
+                  {t('review.remove')}
+                </button>
+              </div>
             </div>
+            {!open && (
+              <div className="summary">
+                <div className="row">
+                  <b className="sum-name">{e.party ?? e.item ?? '?'}</b>
+                  {e.amount != null && <span className="amt">{rs(e.amount)}</span>}
+                </div>
+                {e.party && e.item && <div>{e.item}</div>}
+                {e.due && <span className={`tag ${e.due < props.today ? 'late' : ''}`}>{props.fmtDate(e.due, props.today)}</span>}
+              </div>
+            )}
+            {open && (
             <div className="grid">
               <label>
                 {t('review.fields.type')}
@@ -105,6 +129,7 @@ export function Review(props: {
                 <input value={e.item ?? ''} placeholder="-" onChange={(ev) => set(i, { item: ev.target.value || null })} autoComplete="off" />
               </label>
             </div>
+            )}
             {linked && !e.choices && <div className="note-s linked">{t('review.linked', { name: linked.name })}</div>}
             {doubt && (
               <div className="doubt">

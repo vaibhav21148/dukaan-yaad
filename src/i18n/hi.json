@@ -1,7 +1,17 @@
 {
-  "app": { "name": "Dukaan Yaad", "tagline": "Bolo, hisaab yaad rahega" },
-  "totals": { "milna": "Customers se milna hai", "dena": "Suppliers ko dena hai" },
-  "nav": { "home": "Aaj", "khata": "Khata", "ask": "Poochho" },
+  "app": {
+    "name": "Dukaan Yaad",
+    "tagline": "Bolo, hisaab yaad rahega"
+  },
+  "totals": {
+    "milna": "Customers se milna hai",
+    "dena": "Suppliers ko dena hai"
+  },
+  "nav": {
+    "home": "Aaj",
+    "khata": "Khata",
+    "ask": "Poochho"
+  },
   "mic": {
     "idle": "Dabao aur bolo",
     "listening": "Sun raha hoon...",
@@ -16,9 +26,25 @@
     "noSpeech": "Kuch sunai nahi diya. Dobara bolo.",
     "unavailable": "Is phone par bolkar likhna abhi nahi chalega. Likh kar daalo."
   },
-  "type": { "open": "Likh kar daalo", "close": "Band karo", "placeholder": "Jaise: Ramesh distributor ko 5000 dena hai Friday tak, Maggi khatam, Sharma ji ka 200 udhaar", "go": "Samjho aur dikhao", "empty": "Pehle kuch bolo ya likho." },
-  "example": { "try": "Example se try karo", "loaded": "Example hisaab aur note daal diya. Entries dekho." },
-  "chip": { "online": "Online", "offlinePack": "Offline pack", "browser": "Browser", "typing": "Likh kar", "offlineMode": "Offline mode", "ai": "AI" },
+  "type": {
+    "open": "Likh kar daalo",
+    "close": "Band karo",
+    "placeholder": "Jaise: Ramesh distributor ko 5000 dena hai Friday tak, Maggi khatam, Sharma ji ka 200 udhaar",
+    "go": "Samjho aur dikhao",
+    "empty": "Pehle kuch bolo ya likho."
+  },
+  "example": {
+    "try": "Example se try karo",
+    "loaded": "Example hisaab aur note daal diya. Entries dekho."
+  },
+  "chip": {
+    "online": "Online",
+    "offlinePack": "Offline pack",
+    "browser": "Browser",
+    "typing": "Likh kar",
+    "offlineMode": "Offline mode",
+    "ai": "AI"
+  },
   "review": {
     "title": "Check karo, phir save",
     "hint": "Har entry dekh lo. Galat ho to badlo ya hatao. Peeli line wali entry mein shak hai.",
@@ -35,10 +61,26 @@
     "newPerson": "Naya naam",
     "chooseFirst": "Pehle chuno: kaun sa naam?",
     "noteText": "Aapka note",
-    "by": { "gemini": "AI se samjha", "groq": "AI se samjha", "anthropic": "AI se samjha", "offline": "Bina internet samjha", "demo": "Example", "cache": "Pehle jaisa" },
+    "by": {
+      "gemini": "AI se samjha",
+      "groq": "AI se samjha",
+      "anthropic": "AI se samjha",
+      "offline": "Bina internet samjha",
+      "demo": "Example",
+      "cache": "Pehle jaisa"
+    },
     "leaveFirst": "Pehle entries save karo ya \"Rehne do\" dabao.",
     "listenAgain": "Audio sunao",
-    "fields": { "type": "Type", "party": "Naam", "amount": "Rakam (₹)", "due": "Date", "item": "Saamaan", "who": "Kaun" }
+    "fields": {
+      "type": "Type",
+      "party": "Naam",
+      "amount": "Rakam (₹)",
+      "due": "Date",
+      "item": "Saamaan",
+      "who": "Kaun"
+    },
+    "edit": "Badlo",
+    "doneEdit": "Theek hai"
   },
   "types": {
     "supplier_due": "Supplier ko dena",
@@ -60,10 +102,19 @@
     "entries": "{{count}} entries",
     "nothing": "Sab theek hai. Kal ke liye kuch baaki nahi."
   },
-  "date": { "late": "der ho gayi ({{d}})", "today": "aaj", "tomorrow": "kal" },
+  "date": {
+    "late": "der ho gayi ({{d}})",
+    "today": "aaj",
+    "tomorrow": "kal"
+  },
   "khata": {
     "title": "Khata",
-    "tabs": { "sup": "Suppliers", "cus": "Customers", "maal": "Maal mangwana", "ord": "Orders" },
+    "tabs": {
+      "sup": "Suppliers",
+      "cus": "Customers",
+      "maal": "Maal mangwana",
+      "ord": "Orders"
+    },
     "paid": "Paid",
     "settle": "Mil gaya",
     "gotIt": "Mangwa liya",
@@ -91,7 +142,17 @@
     "ex3": "Kya khatam hai?",
     "ex4": "Customers se kitna milna hai?"
   },
-  "toast": { "saved": "Save ho gaya.", "paid": "Payment likh diya.", "settled": "Mil gaya likh diya.", "done": "Ho gaya likh diya.", "undo": "Wapas lo", "undone": "Wapas le liya.", "discarded": "Note hata diya.", "demoCleared": "Example data hata diya.", "wiped": "Saara data mita diya." },
+  "toast": {
+    "saved": "Save ho gaya.",
+    "paid": "Payment likh diya.",
+    "settled": "Mil gaya likh diya.",
+    "done": "Ho gaya likh diya.",
+    "undo": "Wapas lo",
+    "undone": "Wapas le liya.",
+    "discarded": "Note hata diya.",
+    "demoCleared": "Example data hata diya.",
+    "wiped": "Saara data mita diya."
+  },
   "settings": {
     "title": "Settings",
     "open": "Settings kholo",
@@ -138,7 +199,17 @@
     "storage": "{{mb}} MB jagah use ho rahi hai",
     "persist": "Data pakka save ho, iski permission"
   },
-  "onboard": { "title": "Bhasha chuno", "sub": "Baad mein Settings mein badal sakte ho.", "go": "Shuru karo" },
-  "status": { "offlineAi": "Internet nahi hai, phone par hi samjha. Entries dhyan se check karo.", "aiFailed": "AI nahi chala, phone par hi samjha. Entries dhyan se check karo.", "sttFallback": "Online sunna nahi chala, ab phone par hi sunenge." },
-  "common": { "rupee": "₹" }
+  "onboard": {
+    "title": "Bhasha chuno",
+    "sub": "Baad mein Settings mein badal sakte ho.",
+    "go": "Shuru karo"
+  },
+  "status": {
+    "offlineAi": "Internet nahi hai, phone par hi samjha. Entries dhyan se check karo.",
+    "aiFailed": "AI nahi chala, phone par hi samjha. Entries dhyan se check karo.",
+    "sttFallback": "Online sunna nahi chala, ab phone par hi sunenge."
+  },
+  "common": {
+    "rupee": "₹"
+  }
 }
