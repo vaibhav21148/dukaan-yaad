@@ -1,0 +1,12 @@
+node_modules
+dist
+dev-dist
+.env
+.env.*
+!.env.example
+.vercel
+evals/.cache
+test-results
+playwright-report
+*.log
+.DS_Store

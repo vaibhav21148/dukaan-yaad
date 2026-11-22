@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dukaan Yaad</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Hind:wght@500;600;700&family=Mukta:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE: a practical shop helper, warm and plain, Hinglish labels
+   IDEA: the red cloth bahi-khata ledger, except this one listens
+   PICTURE: the working app: a big mic on the red cover, ruled ledger pages below
+   COLOUR and TYPE: bahi red, ruled white page, ink-blue figures, marigold for doubts; Hind + Mukta
+   LAYOUT: one phone-width column, red cover band on top, tab bar at the bottom */
+:root{color-scheme:light dark;
+--bg:light-dark(#ffffff,#121417);--ink:light-dark(#1b1f27,#e9ecf2);--mute:light-dark(#5b6270,#9aa3b2);
+--rule:light-dark(#dfe6f4,#222a37);--red:light-dark(#b3122c,#c81e37);--red2:light-dark(#8c0e22,#8f1427);
+--blue:light-dark(#1e3a8a,#9db8ff);--gold:light-dark(#b97a00,#f2b23a);--goldbg:light-dark(#fff4d9,#3a2e12);
+--card:light-dark(#ffffff,#1a1e25);--line:light-dark(#e6e8ee,#2a313d);--ok:light-dark(#11703f,#5fd69a)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Mukta,system-ui,sans-serif;overflow-x:clip;padding-bottom:84px}
+h1,h2,h3{font-family:Hind,Mukta,sans-serif;line-height:1.1;margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;min-height:44px;border-radius:12px;border:1px solid var(--line);background:var(--card);padding:0 14px;font-weight:600}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.wrap{max-width:540px;margin:0 auto;padding:0 16px}
+.cover{background:linear-gradient(180deg,var(--red),var(--red2));color:#fff;padding:18px 0 22px;box-shadow:inset 0 -6px 0 rgba(0,0,0,.18)}
+.top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.top h1{font-size:34px;letter-spacing:-.01em}
+.top small{opacity:.85;font-size:14px}
+.totals{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0 16px}
+.tot{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:14px;padding:10px 12px}
+.tot span{display:block;font-size:14px;opacity:.9}
+.tot b{font:700 clamp(22px,6vw,28px)/1.1 Hind,sans-serif;white-space:nowrap}
+.talk{display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;align-items:center}
+.mic{width:84px;height:84px;border-radius:50%;background:#fff;border:0;color:var(--red);display:grid;place-items:center;box-shadow:0 8px 0 rgba(0,0,0,.2)}
+.mic svg{width:38px;height:38px}
+.mic.on{animation:pulse 1.2s infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 12px rgba(255,255,255,.25),0 8px 0 rgba(0,0,0,.2)}}
+@media (prefers-reduced-motion:reduce){.mic.on{animation:none;outline:4px solid #fff}}
+.talk p{margin:0;font-size:15px;opacity:.95}
+textarea{width:100%;min-height:96px;margin-top:14px;border-radius:14px;border:0;padding:12px 14px;font-size:16px;background:#fff;color:#1b1f27;resize:vertical}
+.partial{min-height:22px;font-size:14px;opacity:.85;margin-top:6px}
+.acts{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.primary{background:#fff;color:var(--red);border:0}
+.ghost{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.5)}
+.page{background-image:repeating-linear-gradient(180deg,transparent 0 35px,var(--rule) 35px 36px);min-height:60vh;padding:18px 0 24px}
+.status{font-size:14px;color:var(--mute);min-height:20px;margin:0 0 8px}
+section h2{font-size:22px;margin:18px 0 10px;color:var(--blue)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:0 0 10px;box-shadow:0 1px 0 var(--line)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.row .amt{font:700 20px Hind,sans-serif;color:var(--blue);white-space:nowrap}
+.tag{display:inline-block;font-size:13px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--rule);color:var(--blue)}
+.tag.late{background:var(--red);color:#fff}
+.doubt{background:var(--goldbg);color:var(--ink);border-left:4px solid var(--gold);padding:6px 10px;border-radius:8px;font-size:14px;margin-top:8px}
+.quote{font-size:14px;color:var(--mute);margin-top:6px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.grid label{font-size:13px;color:var(--mute);display:grid;gap:2px}
+.grid input,.grid select{min-height:44px;border-radius:10px;border:1px solid var(--line);background:var(--bg);padding:0 10px;font-size:16px;width:100%}
+.full{grid-column:1/-1}
+.empty{color:var(--mute);font-size:15px;padding:6px 0}
+.subtabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.subtabs button{flex:none}
+.subtabs button[aria-pressed=true],.small.sel{background:var(--blue);color:var(--bg);border-color:var(--blue)}
+.small{min-height:40px;font-size:15px;padding:0 12px}
+.save{background:var(--red);color:#fff;border:0;width:100%;min-height:52px;font-size:17px}
+.ans{white-space:pre-wrap}
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);z-index:5}
+nav .wrap{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:10px 16px calc(10px + env(safe-area-inset-bottom))}
+nav button[aria-current=page]{background:var(--red);color:#fff;border-color:var(--red)}
+.hide{display:none!important}
+.note-s{font-size:13px;color:var(--mute)}
+.dlg{background:var(--goldbg);border-radius:12px;padding:12px;margin-top:10px}
+@media(max-width:420px){.grid{grid-template-columns:1fr}.talk{grid-template-columns:1fr;justify-items:start}}
+</style>
+</head>
+<body>
+<header class="cover">
+  <div class="wrap">
+    <div class="top"><h1>Dukaan Yaad</h1><small id="mode">Shuru ho raha hai...</small></div>
+    <div class="totals">
+      <div class="tot"><span>Customers se milna hai</span><b id="tMilna">₹0</b></div>
+      <div class="tot"><span>Suppliers ko dena hai</span><b id="tDena">₹0</b></div>
+    </div>
+    <div class="talk">
+      <button class="mic hide" id="mic" aria-label="Bolna shuru karo">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/></svg>
+      </button>
+      <p id="hint">Din ka hisaab bolo ya likho: kisko dena hai, kiska udhaar, kya khatam hua, kaunsa order baaki hai.</p>
+    </div>
+    <textarea id="note" placeholder="Jaise: Ramesh distributor ko 5000 dena hai Friday tak, Maggi khatam, Sharma ji ka 200 udhaar"></textarea>
+    <div class="partial" id="partial" aria-live="polite"></div>
+    <div class="acts">
+      <button class="primary" id="go">Samjho aur dikhao</button>
+      <button class="ghost" id="ex">Example note</button>
+    </div>
+  </div>
+</header>
+
+<main class="page">
+  <div class="wrap">
+    <p class="status" id="status" aria-live="polite"></p>
+
+    <div id="vReview" class="hide">
+      <section><h2>Check karo, phir save</h2>
+        <p class="note-s">Har entry dekh lo. Galat ho to badlo ya hatao. Peeli line wali entry mein shak hai.</p>
+        <div id="draft"></div>
+        <button class="save" id="saveAll">Sab sahi hai, save karo</button>
+        <button id="cancel" style="width:100%;margin-top:8px">Rehne do</button>
+      </section>
+    </div>
+
+    <div id="vHome">
+      <section><h2>Kal ka kaam</h2><div id="todo"></div></section>
+      <section><h2>Pichhle notes</h2><div id="notes"></div></section>
+    </div>
+
+    <div id="vKhata" class="hide">
+      <section><h2>Khata</h2>
+        <div class="subtabs" role="group" aria-label="Khata type">
+          <button class="small" data-sub="sup" aria-pressed="true">Suppliers</button>
+          <button class="small" data-sub="cus" aria-pressed="false">Customers</button>
+          <button class="small" data-sub="maal" aria-pressed="false">Maal mangwana</button>
+          <button class="small" data-sub="ord" aria-pressed="false">Orders</button>
+        </div>
+        <div id="khata" style="margin-top:12px"></div>
+      </section>
+    </div>
+
+    <div id="vAsk" class="hide">
+      <section><h2>Poochho</h2>
+        <p class="note-s">Sirf aapke save kiye hisaab se jawab milega.</p>
+        <div class="card">
+          <input id="q" style="width:100%;min-height:48px;border-radius:10px;border:1px solid var(--line);background:var(--bg);padding:0 12px;font-size:16px" placeholder="Sharma ji ka kitna baaki hai?">
+          <div class="acts"><button class="small sel" id="askBtn">Poochho</button></div>
+        </div>
+        <div id="answer"></div>
+      </section>
+      <section><h2>Data</h2>
+        <div class="card"><p class="note-s" id="storeNote" style="margin:0 0 8px"></p>
+          <button id="wipe">Saara data mitao</button>
+          <div id="wipeDlg" class="dlg hide">Pakka? Saari entries aur notes mit jayenge.
+            <div class="acts"><button id="wipeYes" style="background:var(--red);color:#fff;border:0">Haan, mitao</button><button id="wipeNo">Nahi</button></div></div>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<nav><div class="wrap">
+  <button data-v="vHome" aria-current="page">Aaj</button>
+  <button data-v="vKhata">Khata</button>
+  <button data-v="vAsk">Poochho</button>
+</div></nav>
+
+<script>
+{
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const iso=d=>{const z=new Date(d);z.setMinutes(z.getMinutes()-z.getTimezoneOffset());return z.toISOString().slice(0,10)};
+const today=()=>iso(new Date());
+const addDays=n=>{const d=new Date();d.setDate(d.getDate()+n);return iso(d)};
+const rs=n=>'₹'+Math.round(Number(n)||0).toLocaleString('en-IN');
+const fmtDate=d=>{if(!d)return '';if(d<today())return 'der ho gayi ('+d.slice(5)+')';if(d===today())return 'aaj';if(d===addDays(1))return 'kal';return new Date(d+'T00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short'})};
+const TYPES={supplier_due:'Supplier ko dena',supplier_paid:'Supplier ko diya',credit_given:'Udhaar diya',credit_received:'Udhaar wapas mila',reorder:'Maal mangwana',pending_order:'Customer order'};
+const norm=n=>(n||'').toLowerCase().replace(/\b(ji|jee|bhai|bhaiya|uncle|aunty|seth|sahab|saab|distributor|wale|wala)\b/g,'').replace(/[^a-z0-9ऀ-ॿ ]/g,'').replace(/\s+/g,' ').trim();
+const uidGen=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+
+let S={entries:[],notes:[]},draft=[],sub='sup',listening=false;
+let sample=null,dict=null,docRef=null,saving=Promise.resolve();
+const use=n=>(window.claude&&typeof claude.use==='function'?Promise.resolve(claude.use(n)):Promise.resolve(null)).catch(()=>null);
+const status=t=>{$('#status').textContent=t||''};
+
+function loadLocal(){try{const v=localStorage.getItem('dukaan-yaad');if(v){const p=JSON.parse(v);if(p&&Array.isArray(p.entries))S=p}}catch(e){}}
+function save(){
+  try{localStorage.setItem('dukaan-yaad',JSON.stringify(S))}catch(e){}
+  if(docRef){const body=JSON.parse(JSON.stringify(S));saving=saving.then(()=>docRef.set(body)).catch(()=>status('Cloud mein save nahi hua. Is browser mein data safe hai.'))}
+}
+
+/* ---------- derived views ---------- */
+function ledger(plus,minus){
+  const m={};
+  for(const e of S.entries){
+    if(e.type!==plus&&e.type!==minus)continue;
+    const k=norm(e.party)||'?';
+    m[k]=m[k]||{key:k,name:e.party||'Naam nahi',bal:0,due:null};
+    const a=Number(e.amount)||0;
+    m[k].bal+=e.type===plus?a:-a;
+    if(e.type===plus&&e.due&&(!m[k].due||e.due<m[k].due))m[k].due=e.due;
+  }
+  return Object.values(m).filter(x=>x.bal>0.5).sort((a,b)=>(a.due||'9')<(b.due||'9')?-1:b.bal-a.bal);
+}
+function openItems(type){
+  const m={};
+  for(const e of S.entries)if(e.type===type&&e.status!=='done'){const k=type==='reorder'?norm(e.item):e.id;m[k]=m[k]||{...e,ids:[]};m[k].ids.push(e.id)}
+  return Object.values(m);
+}
+
+/* ---------- render ---------- */
+function render(){
+  const sups=ledger('supplier_due','supplier_paid'),cus=ledger('credit_given','credit_received');
+  $('#tDena').textContent=rs(sups.reduce((s,x)=>s+x.bal,0));
+  $('#tMilna').textContent=rs(cus.reduce((s,x)=>s+x.bal,0));
+  const tmr=addDays(1);
+  const pay=sups.filter(x=>x.due&&x.due<=tmr);
+  const maal=openItems('reorder');
+  const ords=openItems('pending_order').filter(o=>!o.due||o.due<=tmr);
+  let h='';
+  h+=pay.length?pay.map(x=>`<div class="card row"><div><b>${esc(x.name)}</b> ko dena<br><span class="tag ${x.due<today()?'late':''}">${fmtDate(x.due)}</span></div><span class="amt">${rs(x.bal)}</span></div>`).join(''):'<p class="empty">Kal tak koi supplier payment nahi.</p>';
+  h+=maal.length?`<div class="card"><b>Mangwana hai (${maal.length})</b><div class="quote" style="color:var(--ink)">${maal.map(i=>esc(i.item)).join(', ')}</div></div>`:'';
+  h+=ords.map(o=>`<div class="card row"><div><b>${esc(o.party||'Customer')}</b> ka order${o.item?': '+esc(o.item):''}<br>${o.due?`<span class="tag">${fmtDate(o.due)}</span>`:'<span class="note-s">date nahi</span>'}</div></div>`).join('');
+  $('#todo').innerHTML=h;
+  $('#notes').innerHTML=S.notes.length?S.notes.slice(-6).reverse().map(n=>`<div class="card"><div class="note-s">${new Date(n.at).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'})} · ${n.count} entries</div>${esc(n.text)}</div>`).join(''):'<p class="empty">Abhi koi note nahi. Upar mic dabao ya likho.</p>';
+  renderKhata(sups,cus);
+}
+function renderKhata(sups,cus){
+  document.querySelectorAll('[data-sub]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.sub===sub));
+  let h='';
+  if(sub==='sup')h=sups.length?sups.map(x=>`<div class="card row"><div><b>${esc(x.name)}</b>${x.due?`<br><span class="tag ${x.due<today()?'late':''}">${fmtDate(x.due)}</span>`:''}</div><div class="row"><span class="amt">${rs(x.bal)}</span><button class="small" data-pay="${esc(x.key)}">Paid</button></div></div>`).join(''):'<p class="empty">Kisi supplier ka baaki nahi.</p>';
+  if(sub==='cus')h=cus.length?cus.map(x=>`<div class="card row"><b>${esc(x.name)}</b><div class="row"><span class="amt">${rs(x.bal)}</span><button class="small" data-settle="${esc(x.key)}">Mil gaya</button></div></div>`).join(''):'<p class="empty">Kisi customer ka udhaar nahi.</p>';
+  if(sub==='maal'){const m=openItems('reorder');h=m.length?m.map(i=>`<div class="card row"><b>${esc(i.item)}</b><button class="small" data-done="${i.ids.join(',')}">Mangwa liya</button></div>`).join(''):'<p class="empty">Kuch khatam nahi.</p>'}
+  if(sub==='ord'){const o=openItems('pending_order');h=o.length?o.map(x=>`<div class="card row"><div><b>${esc(x.party||'Customer')}</b>${x.item?': '+esc(x.item):''}${x.amount?' · '+rs(x.amount):''}<br>${x.due?`<span class="tag">${fmtDate(x.due)}</span>`:''}</div><button class="small" data-done="${x.ids.join(',')}">Ho gaya</button></div>`).join(''):'<p class="empty">Koi order baaki nahi.</p>'}
+  $('#khata').innerHTML=h;
+}
+function renderDraft(){
+  $('#draft').innerHTML=draft.length?draft.map((e,i)=>`<div class="card" data-i="${i}">
+    <div class="row"><span class="tag">${TYPES[e.type]||e.type}</span><button class="small" data-del="${i}" aria-label="Entry hatao">Hatao</button></div>
+    <div class="grid">
+      <label>Type<select data-f="type">${Object.entries(TYPES).map(([k,v])=>`<option value="${k}" ${k===e.type?'selected':''}>${v}</option>`).join('')}</select></label>
+      <label>Naam<input data-f="party" value="${esc(e.party)}" placeholder="Kaun"></label>
+      <label>Rakam (₹)<input data-f="amount" inputmode="numeric" value="${e.amount??''}" placeholder="-"></label>
+      <label>Date<input data-f="due" type="date" value="${e.due||''}"></label>
+      <label class="full">Saamaan<input data-f="item" value="${esc(e.item)}" placeholder="-"></label>
+    </div>
+    ${e.unclear?`<div class="doubt">Shak: ${esc(e.unclear)}</div>`:''}
+    ${e.quote?`<div class="quote">“${esc(e.quote)}”</div>`:''}
+  </div>`).join(''):'<p class="empty">Kuch entry nahi mili. Note thoda saaf likho.</p>';
+}
+
+/* ---------- understanding the note ---------- */
+const WD=['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+const WDH={ravivar:0,somvar:1,mangalvar:2,budhvar:3,guruvar:4,shukravar:5,shanivar:6};
+function dateIn(c){
+  c=c.toLowerCase();
+  if(/\bparso\b/.test(c))return addDays(2);
+  if(/\bkal\b/.test(c))return addDays(1);
+  if(/\baaj\b/.test(c))return today();
+  const pick=i=>{const diff=(i-new Date().getDay()+7)%7||7;return addDays(diff)};
+  for(let i=0;i<7;i++)if(c.includes(WD[i]))return pick(i);
+  for(const [k,v] of Object.entries(WDH))if(c.includes(k))return pick(v);
+  return null;
+}
+const clean=s=>s?s.replace(/^(aur|and|phir|then)\s+/i,'').trim()||null:null;
+function heuristic(text){
+  const out=[];
+  const clauses=text.split(/[,.;\n|]+/).map(s=>s.trim()).filter(Boolean);
+  for(const c of clauses){
+    const l=c.toLowerCase();
+    const num=(l.match(/\d[\d,]*/)||[])[0];const amount=num?Number(num.replace(/,/g,'')):null;
+    const before=re=>{const m=c.match(re);return clean(m&&m[1])};
+    const base={party:null,amount:null,item:null,due:null,unclear:null,quote:c};
+    if(/khatam|khtm|khatm|out of stock|\bkam (hai|ho)|mangwana|mangana|stock nahi/.test(l)){
+      const part=c.split(/\s+(khatam|khtm|khatm|out of stock|kam hai|kam ho|mangwana|mangana|stock nahi)/i)[0];
+      part.split(/\s+aur\s+|\s+and\s+|\//i).map(clean).filter(Boolean).forEach(it=>out.push({...base,type:'reorder',item:it}));continue}
+    if(/\b(ne|se)\b.*(diye|de diye|jama|mil gaye|mil gaya|wapas|chuka)/.test(l)){out.push({...base,type:'credit_received',party:before(/^(.*?)\s+(ne|se)\s/i),amount,unclear:amount?null:'Kitne paise mile?'});continue}
+    if(/\border\b/.test(l)){out.push({...base,type:'pending_order',party:before(/^(.*?)\s+(ka|ke|ki)\s/i),item:clean((c.split(/\border\b/i)[1]||'').replace(/\b(kal|parso|aaj|subah|shaam|raat|tak|ko|hai|dena)\b/gi,' ').replace(/\s+/g,' ')),due:dateIn(l)});continue}
+    if(/\bko\b.*(de diya|diya|diye|paid|bhej diya)/.test(l)){out.push({...base,type:'supplier_paid',party:before(/^(.*?)\s+ko\s/i),amount,unclear:amount?null:'Kitna diya?'});continue}
+    if(/\b(ko|ka|ke)\b.*(dena|dene|bhejna|payment)/.test(l)&&!/udh?aa?r|baa?ki/.test(l)){out.push({...base,type:'supplier_due',party:before(/^(.*?)\s+(ko|ka|ke)\s/i),amount,due:dateIn(l),unclear:amount?null:'Kitna dena hai?'});continue}
+    if(/udh?aa?r|baa?ki|le gaye|le gya|liya/.test(l)){out.push({...base,type:'credit_given',party:before(/^(.*?)\s+(ka|ke|ki|ne)\s/i),amount,unclear:amount?null:'Kitna udhaar?'});continue}
+    out.push({...base,type:'credit_given',amount,unclear:'Samajh nahi aaya. Type aur naam check karo.'});
+  }
+  return out;
+}
+function aiPrompt(text){
+  const names=[...new Set(S.entries.map(e=>e.party).filter(Boolean))].slice(0,80);
+  return `You turn a small Indian shop owner's spoken note (Hinglish, Hindi, Marathi or English) into ledger entries.
+Today is ${today()} (${WD[new Date().getDay()]}).
+Names already in the ledger: ${names.length?names.join(', '):'none yet'}.
+Return ONLY JSON, no prose: {"entries":[{"type":"...","party":null,"amount":null,"item":null,"due":null,"unclear":null,"quote":"..."}]}
+Types:
+- supplier_due: the shop owes a supplier or distributor money
+- supplier_paid: the shop paid a supplier
+- credit_given: a customer took goods on udhaar / owes the shop
+- credit_received: a customer paid back udhaar
+- reorder: an item ran out or is low (one entry per item, item filled, party null unless a supplier is named)
+- pending_order: a customer's order to deliver later
+Rules:
+- Never invent an amount, name, item or date. Use null when it was not said.
+- If the speaker corrects himself ("nahi, 300 tha"), use the corrected value.
+- If something is ambiguous (which person, unclear amount, unclear type), still return the entry and set "unclear" to one short question in simple Hinglish.
+- Resolve relative dates (aaj, kal, parso, Friday tak) to YYYY-MM-DD from today; "kal" means tomorrow when talking about something due.
+- Use an existing ledger name when it is clearly the same person (e.g. "Sharma uncle" = "Sharma ji"); if two could match, keep the spoken name and ask in "unclear".
+- amount is a number in rupees. "quote" is the exact words this entry came from.
+Note:
+"""${text}"""`;
+}
+function parseAI(t){
+  const a=t.indexOf('{'),b=t.lastIndexOf('}');
+  const j=JSON.parse(t.slice(a,b+1));
+  return (j.entries||[]).filter(e=>TYPES[e.type]).map(e=>({type:e.type,party:e.party||null,amount:e.amount==null||e.amount===''?null:Number(e.amount),item:e.item||null,due:/^\d{4}-\d\d-\d\d$/.test(e.due||'')?e.due:null,unclear:e.unclear||null,quote:e.quote||''}));
+}
+async function understand(text){
+  if(sample){
+    try{status('Samajh raha hoon...');const r=await sample(aiPrompt(text),{cache:false});status('');return {list:parseAI(r.text),by:'AI'}}
+    catch(e){if(e&&e.code==='not_granted')sample=null;status('AI nahi chala, simple parser se samjha. Entries dhyan se check karo.')}
+  }
+  return {list:heuristic(text),by:'parser'};
+}
+
+/* ---------- actions ---------- */
+let lastText='';
+$('#go').addEventListener('click',async()=>{
+  const text=$('#note').value.trim();
+  if(!text){status('Pehle kuch bolo ya likho.');return}
+  if(listening&&dict){try{await dict.stop()}catch(e){}}
+  $('#go').disabled=true;
+  const {list}=await understand(text);
+  $('#go').disabled=false;
+  lastText=text;draft=list;renderDraft();
+  show('vReview');
+  $('#vReview').scrollIntoView({behavior:'smooth',block:'start'});
+});
+$('#ex').addEventListener('click',()=>{$('#note').value='Ramesh distributor ko 5000 dena hai Friday tak, Parle-G aur Maggi khatam, Sharma ji ka 200 udhaar, Gupta ji ka order kal shaam 2 kilo chawal, Verma ji ne 150 de diye';status('Yeh ek example note hai. "Samjho aur dikhao" dabao.')});
+$('#draft').addEventListener('input',e=>{
+  const card=e.target.closest('[data-i]');if(!card||!e.target.dataset.f)return;
+  const d=draft[+card.dataset.i],f=e.target.dataset.f;
+  d[f]=f==='amount'?(e.target.value===''?null:Number(e.target.value.replace(/[^\d.]/g,''))):(e.target.value||null);
+  if(f==='type')renderDraft();
+});
+$('#draft').addEventListener('click',e=>{const i=e.target.dataset.del;if(i!=null){draft.splice(+i,1);renderDraft()}});
+$('#saveAll').addEventListener('click',()=>{
+  if(!draft.length){show('vHome');return}
+  const at=new Date().toISOString();
+  draft.forEach(d=>S.entries.push({...d,id:uidGen(),status:'open',at}));
+  S.notes.push({text:lastText,at,count:draft.length});
+  if(S.notes.length>60)S.notes=S.notes.slice(-60);
+  draft=[];$('#note').value='';save();render();show('vHome');status('Save ho gaya.');
+});
+$('#cancel').addEventListener('click',()=>{draft=[];show('vHome');status('')});
+$('#khata').addEventListener('click',e=>{
+  const t=e.target,at=new Date().toISOString();
+  if(t.dataset.pay){const x=ledger('supplier_due','supplier_paid').find(s=>s.key===t.dataset.pay);if(x)S.entries.push({id:uidGen(),type:'supplier_paid',party:x.name,amount:x.bal,item:null,due:null,status:'open',at,quote:'Paid button'})}
+  else if(t.dataset.settle){const x=ledger('credit_given','credit_received').find(s=>s.key===t.dataset.settle);if(x)S.entries.push({id:uidGen(),type:'credit_received',party:x.name,amount:x.bal,item:null,due:null,status:'open',at,quote:'Mil gaya button'})}
+  else if(t.dataset.done){const ids=t.dataset.done.split(',');S.entries.forEach(en=>{if(ids.includes(en.id))en.status='done'})}
+  else return;
+  save();render();
+});
+document.querySelectorAll('[data-sub]').forEach(b=>b.addEventListener('click',()=>{sub=b.dataset.sub;render()}));
+function show(v){
+  ['vHome','vKhata','vAsk','vReview'].forEach(id=>$('#'+id).classList.toggle('hide',id!==v));
+  document.querySelectorAll('nav [data-v]').forEach(b=>{if(b.dataset.v===v)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
+}
+document.querySelectorAll('nav [data-v]').forEach(b=>b.addEventListener('click',()=>{if(draft.length&&!confirmLeave())return;show(b.dataset.v);window.scrollTo({top:0})}));
+function confirmLeave(){status('Pehle entries save karo ya "Rehne do" dabao.');return false}
+
+/* ask */
+function localAnswer(q){
+  const n=norm(q);
+  const all=[...ledger('supplier_due','supplier_paid').map(x=>({...x,k:'sup'})),...ledger('credit_given','credit_received').map(x=>({...x,k:'cus'}))];
+  const hit=all.filter(x=>x.key&&x.key!=='?'&&n.includes(x.key));
+  if(hit.length)return hit.map(x=>x.k==='sup'?`${x.name} ko ${rs(x.bal)} dena hai${x.due?' ('+fmtDate(x.due)+')':''}.`:`${x.name} ka ${rs(x.bal)} udhaar baaki hai.`).join('\n');
+  if(/khatam|mangwana|maal/.test(n)){const m=openItems('reorder');return m.length?'Mangwana hai: '+m.map(i=>i.item).join(', '):'Kuch khatam nahi likha hai.'}
+  return 'Is naam ka hisaab nahi mila. Naam waise hi likho jaise save kiya tha.';
+}
+$('#askBtn').addEventListener('click',async()=>{
+  const q=$('#q').value.trim();if(!q)return;
+  let ans='';
+  if(sample){
+    const data={suppliers_owed:ledger('supplier_due','supplier_paid').map(x=>({name:x.name,amount:x.bal,due:x.due})),customers_owe:ledger('credit_given','credit_received').map(x=>({name:x.name,amount:x.bal})),to_reorder:openItems('reorder').map(i=>i.item),pending_orders:openItems('pending_order').map(o=>({party:o.party,item:o.item,due:o.due}))};
+    try{$('#answer').innerHTML='<p class="empty">Dekh raha hoon...</p>';
+      const r=await sample(`You answer a shop owner's question using ONLY this ledger data. If the data does not contain the answer, say so plainly. Reply in short simple Hinglish, amounts in rupees. Today is ${today()}.\nData: ${JSON.stringify(data)}\nQuestion: ${q}`,{cache:false});ans=r.text}
+    catch(e){if(e&&e.code==='not_granted')sample=null;ans=localAnswer(q)}
+  } else ans=localAnswer(q);
+  $('#answer').innerHTML=`<div class="card ans">${esc(ans)}</div>`;
+});
+$('#q').addEventListener('keydown',e=>{if(e.key==='Enter')$('#askBtn').click()});
+$('#wipe').addEventListener('click',()=>$('#wipeDlg').classList.remove('hide'));
+$('#wipeNo').addEventListener('click',()=>$('#wipeDlg').classList.add('hide'));
+$('#wipeYes').addEventListener('click',()=>{S={entries:[],notes:[]};save();render();$('#wipeDlg').classList.add('hide');status('Data mita diya.')});
+
+/* mic */
+$('#mic').addEventListener('click',()=>{
+  if(!dict)return;
+  if(listening){dict.stop().catch(()=>{});return}
+  dict.start().catch(e=>{if(e&&e.code==='not_granted'){$('#mic').classList.add('hide');status('Mic ki permission nahi mili. Likh kar bhi chalega.')}else status('Mic shuru nahi hua. Dobara dabao ya likho.')});
+});
+
+/* boot */
+loadLocal();render();
+(async()=>{
+  const [d,u,sm,dc]=await Promise.all(['db','user','sample','dictation'].map(use));
+  sample=sm;dict=dc;
+  if(dict){
+    $('#mic').classList.remove('hide');
+    dict.onPartial(({text})=>{$('#partial').textContent=text||''});
+    dict.onFinal(({text})=>{if(text){$('#note').value=($('#note').value+' '+text).trim()}$('#partial').textContent=''});
+    dict.onState(({state})=>{listening=state==='listening';$('#mic').classList.toggle('on',listening);$('#mic').setAttribute('aria-label',listening?'Bolna band karo':'Bolna shuru karo');if(listening)$('#partial').textContent='Sun raha hoon...'});
+  }
+  let where='is browser mein';
+  if(d&&u){
+    try{
+      const id=await u.id();
+      if(id){
+        docRef=d.doc('data/users/'+id+'/state');
+        const snap=await Promise.race([docRef.get(),new Promise((_,r)=>setTimeout(()=>r('t'),10000))]);
+        const cloud=snap.exists?snap.data():null;
+        if(cloud&&Array.isArray(cloud.entries)&&cloud.entries.length>=S.entries.length){S={entries:[...cloud.entries],notes:[...(cloud.notes||[])]};try{localStorage.setItem('dukaan-yaad',JSON.stringify(S))}catch(e){}}
+        else if(S.entries.length)save();
+        where='aapke account mein (sirf aap dekh sakte ho)';
+        render();
+      }
+    }catch(e){docRef=null}
+  }
+  $('#mode').textContent=(sample?'AI se samajhta hai':'Simple parser')+(dict?' · bolkar':' · likh kar');
+  $('#storeNote').textContent='Data '+where+' save hota hai.';
+  if(!dict)$('#hint').textContent='Din ka hisaab likho: kisko dena hai, kiska udhaar, kya khatam hua, kaunsa order baaki hai. (Mic yahan available nahi hai.)';
+})();
+}
+</script>
+</body>
+</html>
