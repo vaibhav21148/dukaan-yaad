@@ -14,5 +14,5 @@
     "noEmit": true,
     "types": ["node", "vite/client", "vite-plugin-pwa/client"]
   },
-  "include": ["src", "shared", "api", "evals", "tests", "vite.config.ts", "playwright.config.ts"]
+  "include": ["src", "shared", "api", "evals", "tests", "artifact", "vite.config.ts", "playwright.config.ts"]
 }

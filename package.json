@@ -14,7 +14,8 @@
     "eval:extraction": "tsx evals/run-extraction.ts",
     "eval:ask": "tsx evals/run-ask.ts",
     "eval:stt": "tsx evals/run-stt.ts",
-    "icons": "node scripts/make-icons.mjs"
+    "icons": "node scripts/make-icons.mjs",
+    "build:artifact": "node artifact/build.mjs"
   },
   "dependencies": {
     "@fontsource/mukta": "^5.3.0",

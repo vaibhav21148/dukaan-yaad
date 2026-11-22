@@ -1,0 +1,9 @@
+/* Artifact-only additions on top of src/styles.css */
+.wrap { padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
+body { padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)); }
+.talk-box { display: contents; }
+.talk.compact .talk-box { display: block; width: 100%; }
+.mic.off { background: var(--line); color: var(--mute); box-shadow: none; }
+.loading { min-height: 60vh; display: grid; place-items: center; color: var(--mute); }
+.status { margin-top: 4px; }
+.dlg p { margin: 0; }
