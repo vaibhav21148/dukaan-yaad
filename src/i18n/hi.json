@@ -24,7 +24,10 @@
     "noPermission": "Mic ki permission nahi mili. Likh kar bhi chalega.",
     "failed": "Mic shuru nahi hua. Dobara dabao ya likho.",
     "noSpeech": "Kuch sunai nahi diya. Dobara bolo.",
-    "unavailable": "Is phone par bolkar likhna abhi nahi chalega. Likh kar daalo."
+    "unavailable": "Is phone par bolkar likhna abhi nahi chalega. Likh kar daalo.",
+    "noMic": "Mic nahi mila. Phone ki settings mein mic check karo, ya likh kar daalo.",
+    "browserService": "Is browser mein bolkar likhna nahi chal raha. Chrome mein kholo, Offline pack lagao, ya likh kar daalo.",
+    "getPack": "Offline pack lagao"
   },
   "type": {
     "open": "Likh kar daalo",

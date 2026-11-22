@@ -48,7 +48,12 @@ export default function App({ installPrompt }: { installPrompt: () => (() => voi
   const [typing, setTyping] = useState(false);
   const [typed, setTyped] = useState('');
   const [busy, setBusy] = useState(false);
-  const [status, setStatus] = useState('');
+  const [status, setStatusText] = useState('');
+  const [statusAction, setStatusAction] = useState<'pack' | null>(null);
+  const setStatus = (text: string, action: 'pack' | null = null) => {
+    setStatusText(text);
+    setStatusAction(action);
+  };
   const [toast, setToast] = useState<ToastMsg | null>(null);
   const [health, setHealth] = useState<Health & { checked: boolean }>({ llm: false, stt: false, checked: false });
   const [engine, setEngine] = useState<EngineId>('typing');
@@ -159,8 +164,8 @@ export default function App({ installPrompt }: { installPrompt: () => (() => voi
         },
         onError: (k) => {
           setPartial('');
-          setStatus(t(`mic.${k}`));
-          if (k === 'unavailable') setTyping(true);
+          setStatus(t(`mic.${k}`), k === 'browserService' || k === 'unavailable' ? 'pack' : null);
+          if (k === 'unavailable' || k === 'browserService') setTyping(true);
         },
         onFallback: () => setStatus(t('status.sttFallback')),
       },
@@ -226,8 +231,8 @@ export default function App({ installPrompt }: { installPrompt: () => (() => voi
     return (
       <main className="onboard">
         <div className="wrap">
-          <h1>{t('app.name')}</h1>
-          <p>{t('app.tagline')}</p>
+          <p className="brand">{t('app.name')}</p>
+          <h1>{t('app.tagline')}</h1>
           <h2>{t('onboard.title')}</h2>
           <p className="note-s">{t('onboard.sub')}</p>
           <div className="lang-grid">
@@ -249,49 +254,51 @@ export default function App({ installPrompt }: { installPrompt: () => (() => voi
 
   return (
     <>
-      <a className="skip" href="#main">
-        {t('nav.home')}
-      </a>
-      <header className="cover">
+      <header className="masthead">
         <div className="wrap">
-          <div className="top">
-            <h1>{t('app.name')}</h1>
+          <div className="bar">
+            <span className="brand">{t('app.name')}</span>
             <div className="chips">
-              <span className="chip" title="STT">
-                {chipStt}
-              </span>
-              {!aiOn && <span className="chip">{t('chip.offlineMode')}</span>}
-              <button type="button" className="icon-btn light" onClick={() => setShowSettings(true)} aria-label={t('settings.open')}>
+              <span className="chip">{chipStt}</span>
+              {!aiOn && <span className="chip quiet">{t('chip.offlineMode')}</span>}
+              <button type="button" className="icon-btn" onClick={() => setShowSettings(true)} aria-label={t('settings.open')}>
                 <GearIcon />
               </button>
             </div>
           </div>
-          <div className="totals">
-            <div className="tot">
-              <span>{t('totals.milna')}</span>
-              <b data-testid="total-milna">{rs(total(cus))}</b>
+          <dl className="totals">
+            <div>
+              <dt>{t('totals.milna')}</dt>
+              <dd data-testid="total-milna">{rs(total(cus))}</dd>
             </div>
-            <div className="tot">
-              <span>{t('totals.dena')}</span>
-              <b data-testid="total-dena">{rs(total(sups))}</b>
+            <div>
+              <dt>{t('totals.dena')}</dt>
+              <dd data-testid="total-dena">{rs(total(sups))}</dd>
             </div>
-          </div>
+          </dl>
+        </div>
+      </header>
+
+      <main className="page" id="main">
+        <div className="wrap">
           {tab === 'home' && (
-            <div className="talk">
-              <MicButton state={busy && noteVoice === 'idle' ? 'thinking' : noteVoice} level={level} onStart={() => startVoice('note')} onStop={stopVoice} label={draft ? t('review.addMore') : undefined} />
-              <p className="mic-state" aria-live="polite">
-                {micText}
-              </p>
+            <section className={`talk ${draft ? 'compact' : ''}`} aria-label={t('mic.start')}>
+              <div className="talk-main">
+                <MicButton state={busy && noteVoice === 'idle' ? 'thinking' : noteVoice} level={level} onStart={() => startVoice('note')} onStop={stopVoice} label={draft ? t('review.addMore') : undefined} size={draft ? 'small' : 'big'} />
+                <p className="mic-state" aria-live="polite">
+                  {micText}
+                </p>
+              </div>
               <p className="partial" aria-live="polite">
                 {voiceFor === 'note' ? partial : ''}
               </p>
-              {!entries.length && !draft && <p className="hint">{t('mic.hint')}</p>}
+              {!entries.length && !draft && !partial && <p className="hint">{t('mic.hint')}</p>}
               <div className="acts center">
-                <button type="button" className="icon-btn light" aria-label={typing ? t('type.close') : t('type.open')} aria-expanded={typing} onClick={() => setTyping(!typing)}>
-                  <KeyboardIcon />
+                <button type="button" className="text-btn" aria-expanded={typing} onClick={() => setTyping(!typing)}>
+                  <KeyboardIcon /> {typing ? t('type.close') : t('type.open')}
                 </button>
                 {!draft && (
-                  <button type="button" className="ghost" onClick={tryExample}>
+                  <button type="button" className="text-btn" onClick={tryExample}>
                     {t('example.try')}
                   </button>
                 )}
@@ -305,21 +312,23 @@ export default function App({ installPrompt }: { installPrompt: () => (() => voi
                   }}
                 >
                   <textarea value={typed} onChange={(e) => setTyped(e.target.value)} placeholder={t('type.placeholder')} aria-label={t('type.open')} autoFocus />
-                  <button type="submit" className="primary" disabled={busy}>
+                  <button type="submit" className="btn" disabled={busy}>
                     {t('type.go')}
                   </button>
                 </form>
               )}
+            </section>
+          )}
+          {status && (
+            <div className="status" role="status" aria-live="polite">
+              <span>{status}</span>
+              {statusAction === 'pack' && (
+                <button type="button" className="text-btn" onClick={() => setShowSettings(true)}>
+                  {t('mic.getPack')}
+                </button>
+              )}
             </div>
           )}
-        </div>
-      </header>
-
-      <main className="page" id="main">
-        <div className="wrap">
-          <p className="status" aria-live="polite" role="status">
-            {status}
-          </p>
           {tab === 'home' && draft && (
             <Review
               draft={draft}

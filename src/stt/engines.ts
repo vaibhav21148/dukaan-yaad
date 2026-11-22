@@ -176,40 +176,80 @@ export function webSpeechAvailable(): boolean {
   return !!SRClass();
 }
 
-/** Live recogniser: listens to the mic itself and streams partials. */
+export type LiveError = 'noPermission' | 'noMic' | 'browserService' | 'noSpeech' | 'failed';
+
+/**
+ * Live recogniser (browser Web Speech API): listens to the mic itself and streams partials.
+ * Chrome sends this audio to Google; it is missing or broken in some browsers (Brave, Firefox, in-app
+ * browsers), and Chrome desktop ends a session early on short pauses. So: restart until the owner stops,
+ * and turn every failure into a specific, actionable error.
+ */
 export class WebSpeechLive {
   id = 'webspeech';
   private rec: SR | null = null;
   private finalText = '';
-  start(lang: Lang | 'auto', onPartial: (t: string) => void, onEnd: (finalText: string, error?: string) => void) {
+  private userStopped = false;
+  private startedAt = 0;
+  private langTried: string[] = [];
+  start(lang: Lang | 'auto', onPartial: (t: string) => void, onEnd: (finalText: string, error?: LiveError) => void) {
     const C = SRClass();
-    if (!C) return onEnd('', 'unavailable');
-    const rec = new C();
-    this.rec = rec;
+    if (!C) return onEnd('', 'browserService');
     this.finalText = '';
-    rec.lang = BCP47[lang === 'auto' ? 'hi' : lang];
-    rec.continuous = true;
-    rec.interimResults = true;
-    let err: string | undefined;
-    rec.onresult = (e) => {
-      let interim = '';
-      for (let i = e.resultIndex; i < e.results.length; i++) {
-        const r = e.results[i];
-        if (r.isFinal) this.finalText += ' ' + r[0].transcript;
-        else interim += r[0].transcript;
-      }
-      onPartial((this.finalText + ' ' + interim).trim());
+    this.userStopped = false;
+    this.startedAt = Date.now();
+    const run = (bcp: string) => {
+      const rec = new C();
+      this.rec = rec;
+      this.langTried.push(bcp);
+      rec.lang = bcp;
+      rec.continuous = true;
+      rec.interimResults = true;
+      let err: string | undefined;
+      rec.onresult = (e) => {
+        let interim = '';
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+          const r = e.results[i];
+          if (r.isFinal) this.finalText += ' ' + r[0].transcript;
+          else interim += r[0].transcript;
+        }
+        onPartial((this.finalText + ' ' + interim).trim());
+      };
+      rec.onerror = (e) => {
+        err = e.error;
+      };
+      rec.onend = () => {
+        const text = this.finalText.trim();
+        if (err === 'language-not-supported' && !this.langTried.includes('en-IN')) return run('en-IN');
+        if (err === 'not-allowed' || err === 'service-not-allowed') return onEnd(text, err === 'not-allowed' ? 'noPermission' : 'browserService');
+        if (err === 'audio-capture') return onEnd(text, 'noMic');
+        if (err === 'network') return onEnd(text, 'browserService');
+        // Ended with words heard = natural auto-stop. Ended with nothing yet (Chrome often stops early):
+        // keep listening, up to 12 s, unless the owner tapped stop.
+        const recoverable = err === undefined || err === 'no-speech';
+        if (!text && recoverable && !this.userStopped && Date.now() - this.startedAt < 12000) {
+          try {
+            return run(bcp);
+          } catch {
+            /* fall through to the error below */
+          }
+        }
+        if (text) return onEnd(text);
+        onEnd('', err === undefined || err === 'no-speech' || err === 'aborted' ? 'noSpeech' : 'failed');
+      };
+      rec.start();
     };
-    rec.onerror = (e) => {
-      err = e.error;
-    };
-    rec.onend = () => onEnd(this.finalText.trim(), err);
-    rec.start();
+    try {
+      run(BCP47[lang === 'auto' ? 'hi' : lang]);
+    } catch {
+      onEnd('', 'failed');
+    }
   }
   stop() {
+    this.userStopped = true;
     this.rec?.stop();
   }
   abort() {
+    this.userStopped = true;
     this.rec?.abort();
   }
 }

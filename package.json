@@ -17,8 +17,6 @@
     "icons": "node scripts/make-icons.mjs"
   },
   "dependencies": {
-    "@fontsource/hind": "^5.3.0",
-    "@fontsource/hind-vadodara": "^5.3.0",
     "@fontsource/mukta": "^5.3.0",
     "@fontsource/mukta-vaani": "^5.3.0",
     "@huggingface/transformers": "^4.3.2",

@@ -29,7 +29,7 @@ export function Home({ entries, parties, notes, today }: { entries: Entry[]; par
         {k.reorder.length > 0 && (
           <div className="card">
             <b>{t('home.reorder', { count: k.reorder.length })}</b>
-            <div className="quote ink">{k.reorder.map((i) => i.item).join(', ')}</div>
+            <div className="items">{k.reorder.map((i) => i.item).join(', ')}</div>
           </div>
         )}
         {k.orders.map((o) => (
@@ -52,8 +52,9 @@ export function Home({ entries, parties, notes, today }: { entries: Entry[]; par
           return (
             <div className="card" key={n.id}>
               <button type="button" className="linkish" aria-expanded={isOpen} onClick={() => setOpen(isOpen ? null : n.id)}>
-                <span className="note-s">
-                  {new Date(n.createdAt).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })} · {t('home.entries', { count: n.entryIds.length })}
+                <span className="note-meta">
+                  <span>{new Date(n.createdAt).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })}</span>
+                  <span>{t('home.entries', { count: n.entryIds.length })}</span>
                 </span>
                 <span className="note-text">{n.text}</span>
               </button>

@@ -49,8 +49,9 @@ export function Review(props: {
       <h2 id="h-review">{t('review.title')}</h2>
       <p className="note-s">{t('review.hint')}</p>
       <div className="card note-card">
-        <div className="note-s">
-          {t('review.noteText')} · {t(`review.by.${draft.by}`)}
+        <div className="note-meta">
+          <span>{t('review.noteText')}</span>
+          <span>{t(`review.by.${draft.by}`)}</span>
         </div>
         <div>{draft.text}</div>
         {audioUrl && <audio controls src={audioUrl} aria-label={t('review.listenAgain')} className="audio" />}

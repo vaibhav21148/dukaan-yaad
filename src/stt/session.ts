@@ -13,7 +13,7 @@ export interface SessionCallbacks {
   onLevel(level: number): void; // 0..1
   onPartial(text: string): void;
   onDone(r: { text: string; engine: EngineId; audio: Blob | null }): void;
-  onError(key: 'noPermission' | 'failed' | 'noSpeech' | 'unavailable'): void;
+  onError(key: 'noPermission' | 'failed' | 'noSpeech' | 'unavailable' | 'noMic' | 'browserService'): void;
   onFallback?(from: EngineId, to: EngineId): void;
 }
 
@@ -71,7 +71,7 @@ export class VoiceSession {
       this.stream = await navigator.mediaDevices.getUserMedia({ audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
     } catch (e) {
       const name = (e as { name?: string })?.name;
-      return this.cb.onError(name === 'NotAllowedError' || name === 'SecurityError' ? 'noPermission' : 'failed');
+      return this.cb.onError(name === 'NotAllowedError' || name === 'SecurityError' ? 'noPermission' : name === 'NotFoundError' ? 'noMic' : 'failed');
     }
     const Ctx = window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
     this.ctx = new Ctx();
@@ -102,9 +102,8 @@ export class VoiceSession {
     this.cb.onState('listening');
     this.live.start(this.opts.lang, (t) => this.cb.onPartial(t), (text, err) => {
       this.cb.onState('idle');
-      if (err === 'not-allowed' || err === 'service-not-allowed') return this.cb.onError('noPermission');
-      if (!text) return this.cb.onError(err === 'no-speech' || !err ? 'noSpeech' : 'failed');
-      this.cb.onDone({ text, engine: 'webspeech', audio: null });
+      if (text) return this.cb.onDone({ text, engine: 'webspeech', audio: null });
+      this.cb.onError(err ?? 'noSpeech');
     });
   }
 

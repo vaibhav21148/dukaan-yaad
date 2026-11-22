@@ -1,13 +1,9 @@
-import '@fontsource/hind/500.css';
-import '@fontsource/hind/600.css';
-import '@fontsource/hind/700.css';
 import '@fontsource/mukta/400.css';
 import '@fontsource/mukta/500.css';
+import '@fontsource/mukta/600.css';
 import '@fontsource/mukta/700.css';
 import '@fontsource/mukta-vaani/400.css';
-import '@fontsource/mukta-vaani/700.css';
-import '@fontsource/hind-vadodara/600.css';
-import '@fontsource/hind-vadodara/700.css';
+import '@fontsource/mukta-vaani/600.css';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { registerSW } from 'virtual:pwa-register';

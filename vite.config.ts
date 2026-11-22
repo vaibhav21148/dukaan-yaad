@@ -1,9 +1,45 @@
 import react from '@vitejs/plugin-react';
-import { defineConfig } from 'vite';
+import type { IncomingMessage, ServerResponse } from 'node:http';
+import { defineConfig, loadEnv, type Plugin, type ViteDevServer } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
+
+/** Dev only: serve /api/* from the same files Vercel deploys, so `npm run dev` + .env.local works like production. */
+function devApi(): Plugin {
+  return {
+    name: 'dukaan-dev-api',
+    configureServer(server: ViteDevServer) {
+      Object.assign(process.env, loadEnv(server.config.mode, process.cwd(), ''));
+      server.middlewares.use('/api', async (req: IncomingMessage, res: ServerResponse, next: () => void) => {
+        const name = (req.url ?? '').split('?')[0].replace(/^\//, '');
+        if (!/^[a-z]+$/.test(name)) return next();
+        try {
+          const mod = await server.ssrLoadModule(`/api/${name}.ts`);
+          const handler = mod[req.method ?? 'GET'];
+          if (typeof handler !== 'function') {
+            res.statusCode = 405;
+            return res.end();
+          }
+          const chunks: Buffer[] = [];
+          for await (const c of req) chunks.push(c as Buffer);
+          const headers = new Headers();
+          for (const [k, v] of Object.entries(req.headers)) if (typeof v === 'string') headers.set(k, v);
+          const body = chunks.length ? Buffer.concat(chunks) : undefined;
+          const r: Response = await handler(new Request(`http://localhost/api/${req.url}`, { method: req.method, headers, body }));
+          res.statusCode = r.status;
+          r.headers.forEach((v, k) => res.setHeader(k, v));
+          res.end(Buffer.from(await r.arrayBuffer()));
+        } catch (e) {
+          res.statusCode = 500;
+          res.end(String(e));
+        }
+      });
+    },
+  };
+}
 
 export default defineConfig({
   plugins: [
+    devApi(),
     react(),
     VitePWA({
       registerType: 'autoUpdate',
@@ -13,8 +49,8 @@ export default defineConfig({
         short_name: 'Dukaan Yaad',
         description: 'Talk for 60 seconds at closing time; the app remembers supplier dues, stock, udhaar and orders.',
         lang: 'hi',
-        theme_color: '#b3122c',
-        background_color: '#b3122c',
+        theme_color: '#FAFAF8',
+        background_color: '#FAFAF8',
         display: 'standalone',
         orientation: 'portrait',
         start_url: '/',
@@ -49,5 +85,4 @@ export default defineConfig({
   ],
   worker: { format: 'es' },
   build: { target: 'es2020', chunkSizeWarningLimit: 900 },
-  server: { proxy: process.env.API_PROXY ? { '/api': process.env.API_PROXY } : undefined },
 });

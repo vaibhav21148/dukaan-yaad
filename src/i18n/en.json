@@ -24,7 +24,10 @@
     "noPermission": "Mic permission was not given. Typing works too.",
     "failed": "Mic did not start. Tap again or type.",
     "noSpeech": "Could not hear anything. Please speak again.",
-    "unavailable": "Speaking is not available on this phone right now. Please type."
+    "unavailable": "Speaking is not available on this phone right now. Please type.",
+    "noMic": "No microphone found. Check the mic in your phone settings, or type instead.",
+    "browserService": "Speech is not working in this browser. Open it in Chrome, get the offline pack, or type instead.",
+    "getPack": "Get offline pack"
   },
   "type": {
     "open": "Type instead",
