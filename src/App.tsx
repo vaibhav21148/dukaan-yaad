@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LANGS, type DraftEntry, type Lang, type Settings as S } from '../shared/types';
 import { ask as askQuestion } from './ask';
-import { GearIcon, KeyboardIcon } from './components/Icons';
+import { Badge, GearIcon, Icon, KeyboardIcon, Steps } from './components/Icons';
 import { MicButton } from './components/MicButton';
 import { Toast, type ToastMsg } from './components/Toast';
 import { db, putSettings, type CurrentDraft } from './db/db';
@@ -98,6 +98,10 @@ export default function App({ installPrompt }: { installPrompt: () => (() => voi
   useEffect(() => {
     void pruneCache();
   }, []);
+  // the review screen pins its save bar above the nav; give the page room for it
+  useEffect(() => {
+    document.body.classList.toggle('reviewing', tab === 'home' && !!draft);
+  }, [tab, draft]);
 
   const aiOn = settings.onlineAi && online && health.llm;
   const knownParties = useCallback(
@@ -231,14 +235,22 @@ export default function App({ installPrompt }: { installPrompt: () => (() => voi
     return (
       <main className="onboard">
         <div className="wrap">
-          <p className="brand">{t('app.name')}</p>
-          <h1>{t('app.tagline')}</h1>
+          <p className="brand">
+            <span className="brand-mark">
+              <Icon name="note" />
+            </span>
+            {t('app.name')}
+          </p>
+          <h1>{t('journey.introTitle')}</h1>
+          <p className="onboard-sub">{t('journey.introSub')}</p>
+          <Steps t={t} />
           <h2>{t('onboard.title')}</h2>
           <p className="note-s">{t('onboard.sub')}</p>
           <div className="lang-grid">
             {LANGS.map((l: Lang) => (
               <button type="button" key={l} className="lang-btn" lang={HTML_LANG[l]} onClick={() => changeSettings({ lang: l, onboarded: true })}>
-                {LANG_NAMES[l]}
+                <span>{LANG_NAMES[l]}</span>
+                <Icon name="chevron" />
               </button>
             ))}
           </div>
@@ -257,9 +269,21 @@ export default function App({ installPrompt }: { installPrompt: () => (() => voi
       <header className="masthead">
         <div className="wrap">
           <div className="bar">
-            <span className="brand">{t('app.name')}</span>
+            <span className="brand">
+              <span className="brand-mark">
+                <Icon name="note" />
+              </span>
+              {t('app.name')}
+            </span>
             <div className="chips">
-              <span className="chip">{chipStt}</span>
+              {/* chips only when something is limited; a working app needs no status jargon */}
+              {engine === 'typing' && (
+                <span className="chip quiet">
+                  <KeyboardIcon />
+                  {t('journey.typingOnly')}
+                </span>
+              )}
+              {engine === 'whisper' && <span className="chip quiet">{chipStt}</span>}
               {!aiOn && <span className="chip quiet">{t('chip.offlineMode')}</span>}
               <button type="button" className="icon-btn" onClick={() => setShowSettings(true)} aria-label={t('settings.open')}>
                 <GearIcon />
@@ -268,11 +292,17 @@ export default function App({ installPrompt }: { installPrompt: () => (() => voi
           </div>
           <dl className="totals">
             <div>
-              <dt>{t('totals.milna')}</dt>
+              <dt>
+                <Badge name="moneyIn" tone="in" />
+                {t('totals.milna')}
+              </dt>
               <dd data-testid="total-milna">{rs(total(cus))}</dd>
             </div>
             <div>
-              <dt>{t('totals.dena')}</dt>
+              <dt>
+                <Badge name="moneyOut" tone="out" />
+                {t('totals.dena')}
+              </dt>
               <dd data-testid="total-dena">{rs(total(sups))}</dd>
             </div>
           </dl>
@@ -285,23 +315,49 @@ export default function App({ installPrompt }: { installPrompt: () => (() => voi
             <section className={`talk ${draft ? 'compact' : ''}`} aria-label={t('mic.start')}>
               <div className="talk-main">
                 <MicButton state={busy && noteVoice === 'idle' ? 'thinking' : noteVoice} level={level} onStart={() => startVoice('note')} onStop={stopVoice} label={draft ? t('review.addMore') : undefined} size={draft ? 'small' : 'big'} />
-                <p className="mic-state" aria-live="polite">
-                  {micText}
-                </p>
+                <div className="talk-text">
+                  <p className="mic-state" aria-live="polite">
+                    {micText}
+                  </p>
+                  {noteVoice === 'listening' && <p className="mic-sub">{t('journey.tapToStop')}</p>}
+                </div>
               </div>
               <p className="partial" aria-live="polite">
                 {voiceFor === 'note' ? partial : ''}
               </p>
-              {!entries.length && !draft && !partial && <p className="hint">{t('mic.hint')}</p>}
+              {!entries.length && !draft && noteVoice === 'idle' && (
+                <button type="button" className="example-card" onClick={tryExample}>
+                  <Badge name="play" />
+                  <span>
+                    <b>{t('journey.tryExample')}</b>
+                    <span>{t('journey.tryExampleSub')}</span>
+                  </span>
+                </button>
+              )}
+              {!entries.length && !draft && !partial && noteVoice === 'idle' && (
+                <div className="say-like">
+                  <p className="say-label">{t('journey.sayLike')}</p>
+                  <div className="phrases">
+                    {(t('journey.phrases', { returnObjects: true }) as unknown as string[]).map((ph) => (
+                      <button
+                        type="button"
+                        key={ph}
+                        className="phrase"
+                        onClick={() => {
+                          setTyping(true);
+                          setTyped(ph);
+                        }}
+                      >
+                        “{ph}”
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
               <div className="acts center">
                 <button type="button" className="text-btn" aria-expanded={typing} onClick={() => setTyping(!typing)}>
-                  <KeyboardIcon /> {typing ? t('type.close') : t('type.open')}
+                  <KeyboardIcon /> {typing ? t('type.close') : draft ? t('type.open') : t('journey.orType')}
                 </button>
-                {!draft && (
-                  <button type="button" className="text-btn" onClick={tryExample}>
-                    {t('example.try')}
-                  </button>
-                )}
               </div>
               {typing && (
                 <form
@@ -321,6 +377,7 @@ export default function App({ installPrompt }: { installPrompt: () => (() => voi
           )}
           {status && (
             <div className="status" role="status" aria-live="polite">
+              <Icon name="help" />
               <span>{status}</span>
               {statusAction === 'pack' && (
                 <button type="button" className="text-btn" onClick={() => setShowSettings(true)}>
@@ -379,7 +436,8 @@ export default function App({ installPrompt }: { installPrompt: () => (() => voi
                 window.scrollTo({ top: 0 });
               }}
             >
-              {t(`nav.${k}`)}
+              <Icon name={k === 'home' ? 'today' : k === 'khata' ? 'book' : 'ask'} />
+              <span>{t(`nav.${k}`)}</span>
             </button>
           ))}
         </div>

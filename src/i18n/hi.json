@@ -214,5 +214,31 @@
   },
   "common": {
     "rupee": "₹"
+  },
+  "journey": {
+    "introTitle": "Din ke ant mein 1 minute bolo. Hisaab yaad rahega.",
+    "introSub": "Supplier ka paisa, khatam maal, udhaar aur orders: bolkar note karo, app yaad rakhega.",
+    "step1": "Bolo",
+    "step1d": "Din ka hisaab apni bhasha mein",
+    "step2": "Check karo",
+    "step2d": "Har entry dekho, phir save",
+    "step3": "Kal ka kaam",
+    "step3d": "Kisko dena hai, kya mangwana hai",
+    "sayLike": "Aise bolo",
+    "tryExample": "Example dekho",
+    "tryExampleSub": "Bina bole poora app dekho",
+    "orType": "ya likh kar daalo",
+    "found": "{{count}} entries mili",
+    "needChoice": "{{count}} mein aapko chunna hai",
+    "kalEmpty": "Kal ke liye kuch baaki nahi. Upar mic dabao aur aaj ka hisaab bolo.",
+    "limited": "Bina AI",
+    "typingOnly": "Sirf likh kar",
+    "tapToStop": "Rukne ke liye dobara dabao",
+    "chooseShort": "Pehle naam chuno",
+    "phrases": [
+      "Ramesh ko 5000 dena hai Friday tak",
+      "Maggi aur Parle-G khatam",
+      "Sharma ji ka 200 udhaar"
+    ]
   }
 }

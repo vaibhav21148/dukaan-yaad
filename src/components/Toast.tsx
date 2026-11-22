@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Undo } from '../db/repo';
+import { Icon } from './Icons';
 
 export interface ToastMsg {
   id: number;
@@ -29,7 +30,10 @@ export function Toast({ msg, onClose, onUndone }: { msg: ToastMsg | null; onClos
   if (!msg) return null;
   return (
     <div className="toast" role="status" aria-live="polite">
-      <span>{msg.text}</span>
+      <span>
+        <Icon name="check" />
+        {msg.text}
+      </span>
       {msg.undo && (
         <button
           type="button"

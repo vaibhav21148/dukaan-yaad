@@ -214,5 +214,31 @@
   },
   "common": {
     "rupee": "₹"
+  },
+  "journey": {
+    "introTitle": "Speak for a minute at closing time. Your shop remembers.",
+    "introSub": "Supplier dues, items that ran out, customer credit and orders: say them once, the app keeps track.",
+    "step1": "Speak",
+    "step1d": "The day’s account, in your language",
+    "step2": "Check",
+    "step2d": "See every entry, then save",
+    "step3": "Tomorrow’s work",
+    "step3d": "Who to pay, what to reorder",
+    "sayLike": "Try saying",
+    "tryExample": "See an example",
+    "tryExampleSub": "Explore the whole app without speaking",
+    "orType": "or type instead",
+    "found": "{{count}} entries found",
+    "needChoice": "{{count}} need your choice",
+    "kalEmpty": "Nothing due for tomorrow. Tap the mic above and say today’s account.",
+    "limited": "No AI",
+    "typingOnly": "Typing only",
+    "tapToStop": "Tap again to stop",
+    "chooseShort": "Choose the name first",
+    "phrases": [
+      "Owe Ramesh 5000 by Friday",
+      "Maggi and Parle-G finished",
+      "Sharma took 200 on credit"
+    ]
   }
 }
